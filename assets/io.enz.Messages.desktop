@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Messages
+Comment=One native home for your conversations
+Exec=enz-messages
+Icon=io.enz.Messages
+Terminal=false
+Categories=Network;InstantMessaging;
+DBusActivatable=false
+StartupNotify=true

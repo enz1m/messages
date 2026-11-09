@@ -1,0 +1,22 @@
+{
+  "version": "0.14.9",
+  "platform": "linux-x86_64",
+  "release": "https://github.com/AsamK/signal-cli/releases/tag/v0.14.9",
+  "archive": {
+    "url": "https://github.com/AsamK/signal-cli/releases/download/v0.14.9/signal-cli-0.14.9-Linux-native.tar.gz",
+    "filename": "signal-cli-0.14.9-Linux-native.tar.gz",
+    "sha256": "a8fab78b5e8053abf3db5725272957ad11d1745b9a16848ddb2ace4743dfa5d5",
+    "max_bytes": 117000000
+  },
+  "source": {
+    "url": "https://codeload.github.com/AsamK/signal-cli/tar.gz/refs/tags/v0.14.9",
+    "filename": "source.tar.gz",
+    "sha256": "2316adb253a97cb9e35911303362386ca0c1b19515a886a4824ac95e6706191b",
+    "max_bytes": 2000000
+  },
+  "member": "signal-cli",
+  "member_bytes": 399837112,
+  "license": "GPL-3.0-or-later",
+  "scope": "Pinned upstream Linux x86_64 native runtime for local development. Distribution must retain upstream source and license obligations.",
+  "binary_sha256": "1bba70955366b675454010468ab10f1f68bad0ea426d44e20868116ab13c604c"
+}

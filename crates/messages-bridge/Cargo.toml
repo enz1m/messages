@@ -1,0 +1,67 @@
+[package]
+name = "messages-bridge"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.96"
+license = "MIT"
+publish = false
+
+# Native SDKs own their dependency resolution. Their wasm/SQLite pins need not
+# constrain the GUI framework's separate pinned web backend.
+[workspace]
+
+[features]
+call-fixtures = ["whatsapp", "whatsapp-rust/test-support"]
+whatsapp = ["dep:reqwest", "dep:whatsapp-rust", "whatsapp-rust/voip", "dep:async-channel"]
+matrix = ["dep:matrix-sdk", "dep:matrix-sdk-crypto", "dep:futures-util"]
+
+[dependencies]
+messages-media = { path = "../messages-media" }
+async-channel = { version = "2", optional = true }
+messages-core = { path = "../messages-core" }
+messages-protocols = { path = "../messages-protocols" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "sync", "time", "fs", "io-util", "signal"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+async-trait = "0.1"
+futures-util = { version = "0.3", optional = true }
+axum = "0.8"
+anyhow = "1"
+base64 = "0.22"
+mime = "0.3"
+url = "2"
+whatsapp-rust = { git = "https://github.com/oxidezap/whatsapp-rust", rev = "aa0612ee31f9e592d72d44a7e0944b353096a926", optional = true }
+matrix-sdk-crypto = { version = "=0.19.1", optional = true }
+matrix-sdk = { version = "=0.19.1", default-features = false, features = ["e2e-encryption", "sqlite", "bundled-sqlite", "rustls-aws-lc-rs"], optional = true }
+
+reqwest = { version = "0.12", optional = true, default-features = false, features = ["json", "rustls-tls"] }
+
+[dev-dependencies]
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+sha2 = "0.10"
+tempfile = "3"
+percent-encoding = "2"
+flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
+
+[[bin]]
+name = "messages-whatsapp"
+path = "src/bin/whatsapp.rs"
+required-features = ["whatsapp"]
+
+[[bin]]
+name = "messages-matrix"
+path = "src/bin/matrix.rs"
+required-features = ["matrix"]
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[profile.dev]
+debug = 0
+incremental = true
+
+[profile.test]
+debug = 0

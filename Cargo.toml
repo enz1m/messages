@@ -1,0 +1,88 @@
+[package]
+name = "enz-messages"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95"
+license = "MIT"
+authors = ["enzUI contributors"]
+description = "Native messaging for Signal, Matrix and WhatsApp, built with enzUI"
+repository = "https://github.com/enz1m/messages"
+publish = false
+
+[workspace]
+resolver = "3"
+members = ["crates/messages-core", "crates/messages-protocols", "crates/messages-test-server", "crates/messages-media"]
+exclude = ["crates/messages-bridge"]
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "sync", "time", "fs", "io-util", "signal", "process"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+messages-core = { path = "crates/messages-core" }
+messages-protocols = { path = "crates/messages-protocols" }
+
+[dependencies]
+base64 = "0.22"
+messages-media = { path = "crates/messages-media" }
+mime_guess = "2"
+messages-core.workspace = true
+messages-protocols.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+chrono.workspace = true
+uuid.workspace = true
+iced = { git = "https://github.com/enz1m/enzim-iced.git", rev = "67f991b7442cbd79821141069c3b864cc12413f2", features = ["wgpu", "tiny-skia", "crisp", "web-colors", "thread-pool", "linux-theme-detection", "wayland", "canvas", "svg", "a11y", "tokio"], default-features = false }
+enzui-iced-core = { package = "enzui-core", features = ["accesskit", "notification-freedesktop"], git = "https://github.com/enz1m/enzui.git", tag = "v0.1.0-alpha.1" }
+enzui-iced-theme = { package = "enzui-theme", git = "https://github.com/enz1m/enzui.git", tag = "v0.1.0-alpha.1" }
+enzui-iced-widgets = { package = "enzui-widgets", features = ["portal-dbus", "application-dbus", "emoji-picker"], git = "https://github.com/enz1m/enzui.git", tag = "v0.1.0-alpha.1" }
+enzui-iced-resources = { package = "enzui-resources", default-features = false, features = ["heif", "first-frame-previews"], git = "https://github.com/enz1m/enzui.git", tag = "v0.1.0-alpha.1" }
+enzui-services = { features = ["secret-service"], git = "https://github.com/enz1m/enzui.git", tag = "v0.1.0-alpha.1" }
+enzui-wayland = { git = "https://github.com/enz1m/enzui.git", tag = "v0.1.0-alpha.1" }
+enzui-parent-lease = { git = "https://github.com/enz1m/enzui.git", tag = "v0.1.0-alpha.1" }
+
+[dev-dependencies]
+zbus = { version = "5.18", default-features = false, features = ["tokio"] }
+tempfile = "3"
+iced_runtime = { git = "https://github.com/enz1m/enzim-iced.git", rev = "67f991b7442cbd79821141069c3b864cc12413f2" }
+messages-test-server = { path = "crates/messages-test-server" }
+
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+opt-level = 2
+debug = 0
+incremental = false
+
+[profile.test]
+debug = "line-tables-only"
+
+[profile.test.package."*"]
+opt-level = 2
+debug = 0
+incremental = false
+
+[profile.release]
+lto = false
+codegen-units = 16
+strip = "debuginfo"
+
+[lints.rust]
+unsafe_code = "deny"
+unconditional_recursion = "deny"
+
+[patch.crates-io]
+zbus_macros = { git = "https://github.com/enz1m/enzim-zbus.git", rev = "815a9ca7b64aa24e14ccb6ea3f7eda97ef7bbc8a" }
+zbus_names = { git = "https://github.com/enz1m/enzim-zbus.git", rev = "815a9ca7b64aa24e14ccb6ea3f7eda97ef7bbc8a" }
+zvariant = { git = "https://github.com/enz1m/enzim-zbus.git", rev = "815a9ca7b64aa24e14ccb6ea3f7eda97ef7bbc8a" }
+zvariant_derive = { git = "https://github.com/enz1m/enzim-zbus.git", rev = "815a9ca7b64aa24e14ccb6ea3f7eda97ef7bbc8a" }
+zvariant_utils = { git = "https://github.com/enz1m/enzim-zbus.git", rev = "815a9ca7b64aa24e14ccb6ea3f7eda97ef7bbc8a" }
+zbus = { git = "https://github.com/enz1m/enzim-zbus.git", rev = "815a9ca7b64aa24e14ccb6ea3f7eda97ef7bbc8a" }
+winit = { git = "https://github.com/enz1m/enzim-winit.git", rev = "f6ce16941bf815a438db7e628ab1126ce48e31dd" }
+
+[features]
+x11 = ["iced/x11", "enzui-iced-widgets/x11"]

@@ -1,0 +1,15 @@
+/target/
+/crates/messages-bridge/target/
+/.local
+*.log
+.env
+.env.*
+!.env.example
+
+/AGENTS/
+
+/vendor/
+*.profraw
+*.profdata
+__pycache__/
+*.pyc
