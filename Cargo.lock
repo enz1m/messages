@@ -20,42 +20,42 @@ checksum = "366ffbaa4442f4684d91e2cd7c5ea7c4ed8add41959a31447066e279e432b618"
 
 [[package]]
 name = "accesskit"
-version = "0.24.1"
-source = "git+https://github.com/enz1m/enzim-accesskit.git?rev=e9da4a8da1825e65356f35c94325fb9438cf90d0#e9da4a8da1825e65356f35c94325fb9438cf90d0"
+version = "0.25.2"
+source = "git+https://github.com/enz1m/enzim-accesskit.git?rev=7da7ac7b800fabf0bd2ba62eef23fa9117a684f4#7da7ac7b800fabf0bd2ba62eef23fa9117a684f4"
 dependencies = [
  "uuid",
 ]
 
 [[package]]
 name = "accesskit_atspi_common"
-version = "0.19.1"
-source = "git+https://github.com/enz1m/enzim-accesskit.git?rev=e9da4a8da1825e65356f35c94325fb9438cf90d0#e9da4a8da1825e65356f35c94325fb9438cf90d0"
+version = "0.21.1"
+source = "git+https://github.com/enz1m/enzim-accesskit.git?rev=7da7ac7b800fabf0bd2ba62eef23fa9117a684f4#7da7ac7b800fabf0bd2ba62eef23fa9117a684f4"
 dependencies = [
  "accesskit",
  "accesskit_consumer",
  "atspi-common",
- "phf",
+ "phf 0.14.0",
  "serde",
  "zvariant",
 ]
 
 [[package]]
 name = "accesskit_consumer"
-version = "0.38.0"
-source = "git+https://github.com/enz1m/enzim-accesskit.git?rev=e9da4a8da1825e65356f35c94325fb9438cf90d0#e9da4a8da1825e65356f35c94325fb9438cf90d0"
+version = "0.39.2"
+source = "git+https://github.com/enz1m/enzim-accesskit.git?rev=7da7ac7b800fabf0bd2ba62eef23fa9117a684f4#7da7ac7b800fabf0bd2ba62eef23fa9117a684f4"
 dependencies = [
  "accesskit",
- "hashbrown 0.16.1",
+ "hashbrown 0.17.1",
 ]
 
 [[package]]
 name = "accesskit_ios"
-version = "0.1.2"
-source = "git+https://github.com/enz1m/enzim-accesskit.git?rev=e9da4a8da1825e65356f35c94325fb9438cf90d0#e9da4a8da1825e65356f35c94325fb9438cf90d0"
+version = "0.2.2"
+source = "git+https://github.com/enz1m/enzim-accesskit.git?rev=7da7ac7b800fabf0bd2ba62eef23fa9117a684f4#7da7ac7b800fabf0bd2ba62eef23fa9117a684f4"
 dependencies = [
  "accesskit",
  "accesskit_consumer",
- "hashbrown 0.16.1",
+ "hashbrown 0.17.1",
  "objc2 0.5.3",
  "objc2-foundation 0.2.2",
  "objc2-ui-kit 0.2.2",
@@ -63,12 +63,12 @@ dependencies = [
 
 [[package]]
 name = "accesskit_macos"
-version = "0.26.3"
-source = "git+https://github.com/enz1m/enzim-accesskit.git?rev=e9da4a8da1825e65356f35c94325fb9438cf90d0#e9da4a8da1825e65356f35c94325fb9438cf90d0"
+version = "0.27.2"
+source = "git+https://github.com/enz1m/enzim-accesskit.git?rev=7da7ac7b800fabf0bd2ba62eef23fa9117a684f4#7da7ac7b800fabf0bd2ba62eef23fa9117a684f4"
 dependencies = [
  "accesskit",
  "accesskit_consumer",
- "hashbrown 0.16.1",
+ "hashbrown 0.17.1",
  "objc2 0.5.3",
  "objc2-app-kit 0.2.2",
  "objc2-foundation 0.2.2",
@@ -76,8 +76,8 @@ dependencies = [
 
 [[package]]
 name = "accesskit_unix"
-version = "0.22.1"
-source = "git+https://github.com/enz1m/enzim-accesskit.git?rev=e9da4a8da1825e65356f35c94325fb9438cf90d0#e9da4a8da1825e65356f35c94325fb9438cf90d0"
+version = "0.24.1"
+source = "git+https://github.com/enz1m/enzim-accesskit.git?rev=7da7ac7b800fabf0bd2ba62eef23fa9117a684f4#7da7ac7b800fabf0bd2ba62eef23fa9117a684f4"
 dependencies = [
  "accesskit",
  "accesskit_atspi_common",
@@ -91,12 +91,12 @@ dependencies = [
 
 [[package]]
 name = "accesskit_windows"
-version = "0.34.0"
-source = "git+https://github.com/enz1m/enzim-accesskit.git?rev=e9da4a8da1825e65356f35c94325fb9438cf90d0#e9da4a8da1825e65356f35c94325fb9438cf90d0"
+version = "0.35.2"
+source = "git+https://github.com/enz1m/enzim-accesskit.git?rev=7da7ac7b800fabf0bd2ba62eef23fa9117a684f4#7da7ac7b800fabf0bd2ba62eef23fa9117a684f4"
 dependencies = [
  "accesskit",
  "accesskit_consumer",
- "hashbrown 0.16.1",
+ "hashbrown 0.17.1",
  "static_assertions",
  "windows",
  "windows-core",
@@ -104,8 +104,8 @@ dependencies = [
 
 [[package]]
 name = "accesskit_winit"
-version = "0.33.2"
-source = "git+https://github.com/enz1m/enzim-accesskit.git?rev=e9da4a8da1825e65356f35c94325fb9438cf90d0#e9da4a8da1825e65356f35c94325fb9438cf90d0"
+version = "0.34.2"
+source = "git+https://github.com/enz1m/enzim-accesskit.git?rev=7da7ac7b800fabf0bd2ba62eef23fa9117a684f4#7da7ac7b800fabf0bd2ba62eef23fa9117a684f4"
 dependencies = [
  "accesskit",
  "accesskit_ios",
@@ -493,9 +493,9 @@ checksum = "ac07cdecf99051d9a5238b80f35af32cdeba5b336e55d957b318b50137e18da5"
 
 [[package]]
 name = "bit-set"
-version = "0.9.1"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34ddef2995421ab6a5c779542c81ee77c115206f4ad9d5a8e05f4ff49716a3dd"
+checksum = "09ec2f926cc3060f09db9ebc5b52823d85268d24bb917e472c0c4bea35780a7d"
 dependencies = [
  "bit-vec",
 ]
@@ -847,7 +847,7 @@ checksum = "460fbee9c2c2f33933d720630a6a0bac33ba7053db5344fac858d4b8952d77d5"
 [[package]]
 name = "cryoglyph"
 version = "0.1.0"
-source = "git+https://github.com/enz1m/enzim-cryoglyph.git?rev=eeaaa5585fbb1bac004ca398cfad957fec6be5f3#eeaaa5585fbb1bac004ca398cfad957fec6be5f3"
+source = "git+https://github.com/enz1m/enzim-cryoglyph.git?rev=0617a49e7b8a5c5c4cc572a3e98cda70ff1be89f#0617a49e7b8a5c5c4cc572a3e98cda70ff1be89f"
 dependencies = [
  "cosmic-text",
  "etagere",
@@ -953,7 +953,7 @@ checksum = "75b325c5dbd37f80359721ad39aca5a29fb04c89279657cffdda8736d0c0b9d2"
 [[package]]
 name = "dpi"
 version = "0.1.1"
-source = "git+https://github.com/enz1m/enzim-winit.git?rev=f6ce16941bf815a438db7e628ab1126ce48e31dd#f6ce16941bf815a438db7e628ab1126ce48e31dd"
+source = "git+https://github.com/enz1m/enzim-winit.git?rev=40eeb41f8637ef1620afa377ba006874224b6d65#40eeb41f8637ef1620afa377ba006874224b6d65"
 
 [[package]]
 name = "dtor"
@@ -973,7 +973,7 @@ version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "589871e639330783bc20ad89d32ac1b049e02c273d96c907ca27478c8bc674a2"
 dependencies = [
- "phf",
+ "phf 0.13.1",
 ]
 
 [[package]]
@@ -1033,8 +1033,8 @@ dependencies = [
 
 [[package]]
 name = "enzui-clipboard"
-version = "0.1.0"
-source = "git+https://github.com/enz1m/enzui.git?tag=v0.1.0-alpha.1#4b127eb505b366d0f2d6498bac29b7dd55cf586b"
+version = "0.2.0-alpha.1"
+source = "git+https://github.com/enz1m/enzui.git?tag=v0.2.0-alpha.1#7275e9a2e99ad0ca9342c179a2cda31e1840a2a3"
 dependencies = [
  "enzui-core",
  "enzui-security",
@@ -1047,8 +1047,8 @@ dependencies = [
 
 [[package]]
 name = "enzui-clipboard-runtime"
-version = "0.1.0"
-source = "git+https://github.com/enz1m/enzui.git?tag=v0.1.0-alpha.1#4b127eb505b366d0f2d6498bac29b7dd55cf586b"
+version = "0.2.0-alpha.1"
+source = "git+https://github.com/enz1m/enzui.git?tag=v0.2.0-alpha.1#7275e9a2e99ad0ca9342c179a2cda31e1840a2a3"
 dependencies = [
  "enzui-clipboard",
  "enzui-core",
@@ -1063,8 +1063,8 @@ dependencies = [
 
 [[package]]
 name = "enzui-core"
-version = "0.1.0"
-source = "git+https://github.com/enz1m/enzui.git?tag=v0.1.0-alpha.1#4b127eb505b366d0f2d6498bac29b7dd55cf586b"
+version = "0.2.0-alpha.1"
+source = "git+https://github.com/enz1m/enzui.git?tag=v0.2.0-alpha.1#7275e9a2e99ad0ca9342c179a2cda31e1840a2a3"
 dependencies = [
  "accesskit",
  "ashpd",
@@ -1090,7 +1090,7 @@ dependencies = [
  "intl-memoizer",
  "libc",
  "log",
- "roxmltree",
+ "roxmltree 0.20.0",
  "rustix",
  "serde",
  "serde_json",
@@ -1101,7 +1101,7 @@ dependencies = [
  "unic-langid",
  "unicode-normalization",
  "unicode-segmentation",
- "usvg",
+ "usvg 0.45.1",
  "writeable",
  "zbus",
  "zbus_names",
@@ -1110,18 +1110,18 @@ dependencies = [
 
 [[package]]
 name = "enzui-icons"
-version = "0.1.0"
-source = "git+https://github.com/enz1m/enzui.git?tag=v0.1.0-alpha.1#4b127eb505b366d0f2d6498bac29b7dd55cf586b"
+version = "0.2.0-alpha.1"
+source = "git+https://github.com/enz1m/enzui.git?tag=v0.2.0-alpha.1#7275e9a2e99ad0ca9342c179a2cda31e1840a2a3"
 
 [[package]]
 name = "enzui-parent-lease"
-version = "0.1.0"
-source = "git+https://github.com/enz1m/enzui.git?tag=v0.1.0-alpha.1#4b127eb505b366d0f2d6498bac29b7dd55cf586b"
+version = "0.2.0-alpha.1"
+source = "git+https://github.com/enz1m/enzui.git?tag=v0.2.0-alpha.1#7275e9a2e99ad0ca9342c179a2cda31e1840a2a3"
 
 [[package]]
 name = "enzui-resources"
-version = "0.1.0"
-source = "git+https://github.com/enz1m/enzui.git?tag=v0.1.0-alpha.1#4b127eb505b366d0f2d6498bac29b7dd55cf586b"
+version = "0.2.0-alpha.1"
+source = "git+https://github.com/enz1m/enzui.git?tag=v0.2.0-alpha.1#7275e9a2e99ad0ca9342c179a2cda31e1840a2a3"
 dependencies = [
  "enzui-core",
  "enzui-security",
@@ -1135,16 +1135,16 @@ dependencies = [
 
 [[package]]
 name = "enzui-security"
-version = "0.1.0"
-source = "git+https://github.com/enz1m/enzui.git?tag=v0.1.0-alpha.1#4b127eb505b366d0f2d6498bac29b7dd55cf586b"
+version = "0.2.0-alpha.1"
+source = "git+https://github.com/enz1m/enzui.git?tag=v0.2.0-alpha.1#7275e9a2e99ad0ca9342c179a2cda31e1840a2a3"
 dependencies = [
  "rustix",
 ]
 
 [[package]]
 name = "enzui-services"
-version = "0.1.0"
-source = "git+https://github.com/enz1m/enzui.git?tag=v0.1.0-alpha.1#4b127eb505b366d0f2d6498bac29b7dd55cf586b"
+version = "0.2.0-alpha.1"
+source = "git+https://github.com/enz1m/enzui.git?tag=v0.2.0-alpha.1#7275e9a2e99ad0ca9342c179a2cda31e1840a2a3"
 dependencies = [
  "cc",
  "enzui-core",
@@ -1161,8 +1161,8 @@ dependencies = [
 
 [[package]]
 name = "enzui-theme"
-version = "0.1.0"
-source = "git+https://github.com/enz1m/enzui.git?tag=v0.1.0-alpha.1#4b127eb505b366d0f2d6498bac29b7dd55cf586b"
+version = "0.2.0-alpha.1"
+source = "git+https://github.com/enz1m/enzui.git?tag=v0.2.0-alpha.1#7275e9a2e99ad0ca9342c179a2cda31e1840a2a3"
 dependencies = [
  "iced_core",
  "iced_futures",
@@ -1171,8 +1171,8 @@ dependencies = [
 
 [[package]]
 name = "enzui-wayland"
-version = "0.1.0"
-source = "git+https://github.com/enz1m/enzui.git?tag=v0.1.0-alpha.1#4b127eb505b366d0f2d6498bac29b7dd55cf586b"
+version = "0.2.0-alpha.1"
+source = "git+https://github.com/enz1m/enzui.git?tag=v0.2.0-alpha.1#7275e9a2e99ad0ca9342c179a2cda31e1840a2a3"
 dependencies = [
  "enzui-core",
  "enzui-parent-lease",
@@ -1184,8 +1184,8 @@ dependencies = [
 
 [[package]]
 name = "enzui-widgets"
-version = "0.1.0"
-source = "git+https://github.com/enz1m/enzui.git?tag=v0.1.0-alpha.1#4b127eb505b366d0f2d6498bac29b7dd55cf586b"
+version = "0.2.0-alpha.1"
+source = "git+https://github.com/enz1m/enzui.git?tag=v0.2.0-alpha.1#7275e9a2e99ad0ca9342c179a2cda31e1840a2a3"
 dependencies = [
  "bytemuck",
  "emojis",
@@ -1207,10 +1207,10 @@ dependencies = [
  "pulldown-cmark",
  "qrcode",
  "raw-window-handle",
- "resvg",
- "roxmltree",
+ "resvg 0.45.1",
+ "roxmltree 0.20.0",
  "simplecss",
- "svgtypes",
+ "svgtypes 0.15.3",
  "unicode-linebreak",
  "unicode-segmentation",
  "unicode-width",
@@ -1240,12 +1240,11 @@ checksum = "0b5343afd4a8365a643ac588dab4cf234a190c7f6c88c9f6dd6ffe00837661b7"
 
 [[package]]
 name = "etagere"
-version = "0.2.15"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fc89bf99e5dc15954a60f707c1e09d7540e5cd9af85fa75caa0b510bc08c5342"
+checksum = "7ecb5c40d5683a270e077688f53a99eac51c1cb1ae5ba63b55590370cb3536bf"
 dependencies = [
  "euclid",
- "svg_fmt",
 ]
 
 [[package]]
@@ -1406,7 +1405,7 @@ version = "0.5.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbc773e24e02d4ddd8395fd30dc147524273a83e54e0f312d986ea30de5f5646"
 dependencies = [
- "roxmltree",
+ "roxmltree 0.20.0",
 ]
 
 [[package]]
@@ -1709,26 +1708,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "gpu-descriptor"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b89c83349105e3732062a895becfc71a8f921bb71ecbbdd8ff99263e3b53a0ca"
-dependencies = [
- "bitflags 2.13.2",
- "gpu-descriptor-types",
- "hashbrown 0.15.5",
-]
-
-[[package]]
-name = "gpu-descriptor-types"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fdf242682df893b86f33a73828fb09ca4b2d3bb6cc95249707fc684d27484b91"
-dependencies = [
- "bitflags 2.13.2",
-]
-
-[[package]]
 name = "guillotiere"
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1787,6 +1766,9 @@ name = "hashbrown"
 version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
+dependencies = [
+ "foldhash 0.2.0",
+]
 
 [[package]]
 name = "hermit-abi"
@@ -1799,12 +1781,6 @@ name = "hex"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
-
-[[package]]
-name = "hexf-parse"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dfa686283ad6dd069f105e5ab091b04c62850d3e4cf5d67debad1933f55023df"
 
 [[package]]
 name = "http"
@@ -1938,7 +1914,7 @@ dependencies = [
 [[package]]
 name = "iced"
 version = "0.15.0-dev"
-source = "git+https://github.com/enz1m/enzim-iced.git?rev=67f991b7442cbd79821141069c3b864cc12413f2#67f991b7442cbd79821141069c3b864cc12413f2"
+source = "git+https://github.com/enz1m/enzim-iced.git?rev=a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6#a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6"
 dependencies = [
  "iced_core",
  "iced_debug",
@@ -1954,7 +1930,7 @@ dependencies = [
 [[package]]
 name = "iced_core"
 version = "0.15.0-dev"
-source = "git+https://github.com/enz1m/enzim-iced.git?rev=67f991b7442cbd79821141069c3b864cc12413f2#67f991b7442cbd79821141069c3b864cc12413f2"
+source = "git+https://github.com/enz1m/enzim-iced.git?rev=a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6#a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6"
 dependencies = [
  "bitflags 2.13.2",
  "bytes",
@@ -1973,7 +1949,7 @@ dependencies = [
 [[package]]
 name = "iced_debug"
 version = "0.15.0-dev"
-source = "git+https://github.com/enz1m/enzim-iced.git?rev=67f991b7442cbd79821141069c3b864cc12413f2#67f991b7442cbd79821141069c3b864cc12413f2"
+source = "git+https://github.com/enz1m/enzim-iced.git?rev=a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6#a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6"
 dependencies = [
  "iced_core",
  "iced_futures",
@@ -1983,7 +1959,7 @@ dependencies = [
 [[package]]
 name = "iced_futures"
 version = "0.15.0-dev"
-source = "git+https://github.com/enz1m/enzim-iced.git?rev=67f991b7442cbd79821141069c3b864cc12413f2#67f991b7442cbd79821141069c3b864cc12413f2"
+source = "git+https://github.com/enz1m/enzim-iced.git?rev=a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6#a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6"
 dependencies = [
  "futures",
  "iced_core",
@@ -1997,7 +1973,7 @@ dependencies = [
 [[package]]
 name = "iced_graphics"
 version = "0.15.0-dev"
-source = "git+https://github.com/enz1m/enzim-iced.git?rev=67f991b7442cbd79821141069c3b864cc12413f2#67f991b7442cbd79821141069c3b864cc12413f2"
+source = "git+https://github.com/enz1m/enzim-iced.git?rev=a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6#a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6"
 dependencies = [
  "bitflags 2.13.2",
  "bytemuck",
@@ -2018,7 +1994,7 @@ dependencies = [
 [[package]]
 name = "iced_program"
 version = "0.15.0-dev"
-source = "git+https://github.com/enz1m/enzim-iced.git?rev=67f991b7442cbd79821141069c3b864cc12413f2#67f991b7442cbd79821141069c3b864cc12413f2"
+source = "git+https://github.com/enz1m/enzim-iced.git?rev=a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6#a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6"
 dependencies = [
  "iced_graphics",
  "iced_runtime",
@@ -2027,7 +2003,7 @@ dependencies = [
 [[package]]
 name = "iced_renderer"
 version = "0.15.0-dev"
-source = "git+https://github.com/enz1m/enzim-iced.git?rev=67f991b7442cbd79821141069c3b864cc12413f2#67f991b7442cbd79821141069c3b864cc12413f2"
+source = "git+https://github.com/enz1m/enzim-iced.git?rev=a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6#a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6"
 dependencies = [
  "iced_graphics",
  "iced_tiny_skia",
@@ -2039,7 +2015,7 @@ dependencies = [
 [[package]]
 name = "iced_runtime"
 version = "0.15.0-dev"
-source = "git+https://github.com/enz1m/enzim-iced.git?rev=67f991b7442cbd79821141069c3b864cc12413f2#67f991b7442cbd79821141069c3b864cc12413f2"
+source = "git+https://github.com/enz1m/enzim-iced.git?rev=a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6#a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6"
 dependencies = [
  "bytes",
  "iced_core",
@@ -2051,24 +2027,24 @@ dependencies = [
 [[package]]
 name = "iced_tiny_skia"
 version = "0.15.0-dev"
-source = "git+https://github.com/enz1m/enzim-iced.git?rev=67f991b7442cbd79821141069c3b864cc12413f2#67f991b7442cbd79821141069c3b864cc12413f2"
+source = "git+https://github.com/enz1m/enzim-iced.git?rev=a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6#a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6"
 dependencies = [
  "bytemuck",
  "cosmic-text",
  "iced_debug",
  "iced_graphics",
- "kurbo 0.10.4",
+ "kurbo 0.13.1",
  "log",
- "resvg",
+ "resvg 0.48.1",
  "rustc-hash 2.1.3",
  "softbuffer",
- "tiny-skia 0.11.4",
+ "tiny-skia 0.12.0",
 ]
 
 [[package]]
 name = "iced_wgpu"
 version = "0.15.0-dev"
-source = "git+https://github.com/enz1m/enzim-iced.git?rev=67f991b7442cbd79821141069c3b864cc12413f2#67f991b7442cbd79821141069c3b864cc12413f2"
+source = "git+https://github.com/enz1m/enzim-iced.git?rev=a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6#a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6"
 dependencies = [
  "ash",
  "bitflags 2.13.2",
@@ -2080,7 +2056,7 @@ dependencies = [
  "iced_graphics",
  "log",
  "lyon",
- "resvg",
+ "resvg 0.48.1",
  "rustc-hash 2.1.3",
  "thiserror 2.0.21",
  "wgpu",
@@ -2089,7 +2065,7 @@ dependencies = [
 [[package]]
 name = "iced_widget"
 version = "0.15.0-dev"
-source = "git+https://github.com/enz1m/enzim-iced.git?rev=67f991b7442cbd79821141069c3b864cc12413f2#67f991b7442cbd79821141069c3b864cc12413f2"
+source = "git+https://github.com/enz1m/enzim-iced.git?rev=a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6#a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6"
 dependencies = [
  "iced_renderer",
  "iced_runtime",
@@ -2105,7 +2081,7 @@ dependencies = [
 [[package]]
 name = "iced_winit"
 version = "0.15.0-dev"
-source = "git+https://github.com/enz1m/enzim-iced.git?rev=67f991b7442cbd79821141069c3b864cc12413f2#67f991b7442cbd79821141069c3b864cc12413f2"
+source = "git+https://github.com/enz1m/enzim-iced.git?rev=a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6#a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6"
 dependencies = [
  "accesskit",
  "accesskit_winit",
@@ -2116,7 +2092,6 @@ dependencies = [
  "iced_runtime",
  "log",
  "mundy",
- "objc2 0.5.3",
  "raw-window-handle",
  "rustc-hash 2.1.3",
  "rustix",
@@ -2473,6 +2448,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "edcd27d72f2f071c64249075f42e205ff93c9a4c5f6c6da53e79ed9f9832c285"
 
 [[package]]
+name = "imagesize"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "65b27460c2c92b037f3f94c538ed9a3342f3fdf923606781629ccb35f82d042a"
+
+[[package]]
 name = "indexmap"
 version = "2.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2589,11 +2570,12 @@ dependencies = [
 
 [[package]]
 name = "js-sys"
-version = "0.3.85"
+version = "0.3.107"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c942ebf8e95485ca0d52d97da7c5a2c387d0e7f0ba4c35e93bfcaee045955b3"
+checksum = "8dc09d2154098bbf4ef54eab6b117a3c24cbbffe94046b16ee6d6d4510584d3a"
 dependencies = [
- "once_cell",
+ "cfg-if",
+ "futures-util",
  "wasm-bindgen",
 ]
 
@@ -2625,22 +2607,24 @@ checksum = "e2db585e1d738fc771bf08a151420d3ed193d9d895a36df7f6f8a9456b911ddc"
 
 [[package]]
 name = "kurbo"
-version = "0.10.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1618d4ebd923e97d67e7cd363d80aef35fe961005cbbbb3d2dad8bdd1bc63440"
-dependencies = [
- "arrayvec",
- "smallvec",
-]
-
-[[package]]
-name = "kurbo"
 version = "0.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c62026ae44756f8a599ba21140f350303d4f08dcdcc71b5ad9c9bb8128c13c62"
 dependencies = [
  "arrayvec",
  "euclid",
+ "smallvec",
+]
+
+[[package]]
+name = "kurbo"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4b60dfc32f652b926df6192e55525b16d186c69d47876c3ead4da5cc9f8450e2"
+dependencies = [
+ "arrayvec",
+ "euclid",
+ "polycool",
  "smallvec",
 ]
 
@@ -2967,8 +2951,8 @@ checksum = "13d2233c9842d08cfe13f9eac96e207ca6a2ea10b80259ebe8ad0268be27d2af"
 
 [[package]]
 name = "naga"
-version = "29.0.4"
-source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=7f040c8501f6838262c90ede4edfa40940fe2de8#7f040c8501f6838262c90ede4edfa40940fe2de8"
+version = "30.0.2"
+source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=c62972c9be1326882c4b4f1939d8a2713e42d210#c62972c9be1326882c4b4f1939d8a2713e42d210"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -2977,17 +2961,28 @@ dependencies = [
  "cfg_aliases",
  "codespan-reporting",
  "half",
- "hashbrown 0.16.1",
- "hexf-parse",
+ "hashbrown 0.17.1",
  "indexmap",
  "libm",
  "log",
+ "naga-types",
  "num-traits",
  "once_cell",
  "rustc-hash 1.1.0",
  "spirv",
  "thiserror 2.0.21",
  "unicode-ident",
+]
+
+[[package]]
+name = "naga-types"
+version = "30.0.2"
+source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=c62972c9be1326882c4b4f1939d8a2713e42d210#c62972c9be1326882c4b4f1939d8a2713e42d210"
+dependencies = [
+ "hashbrown 0.17.1",
+ "indexmap",
+ "rustc-hash 1.1.0",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -3376,6 +3371,7 @@ dependencies = [
  "bitflags 2.13.2",
  "objc2 0.6.5",
  "objc2-core-foundation",
+ "objc2-core-graphics",
  "objc2-foundation 0.3.2",
  "objc2-metal 0.3.2",
 ]
@@ -3572,29 +3568,38 @@ version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c1562dc717473dbaa4c1f85a36410e03c047b2e7df7f45ee938fbef64ae7fadf"
 dependencies = [
+ "phf_shared 0.13.1",
+]
+
+[[package]]
+name = "phf"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "010378780309880b08997fae13be7834dba947d36393bd372f2b1556deb2a2f6"
+dependencies = [
  "phf_macros",
- "phf_shared",
+ "phf_shared 0.14.0",
  "serde",
 ]
 
 [[package]]
 name = "phf_generator"
-version = "0.13.1"
+version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "135ace3a761e564ec88c03a77317a7c6b80bb7f7135ef2544dbe054243b89737"
+checksum = "aeb62e0959d5a1bebc965f4d15d9e2b7cea002b6b0f5ba8cde6cc26738467100"
 dependencies = [
  "fastrand",
- "phf_shared",
+ "phf_shared 0.14.0",
 ]
 
 [[package]]
 name = "phf_macros"
-version = "0.13.1"
+version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "812f032b54b1e759ccd5f8b6677695d5268c588701effba24601f6932f8269ef"
+checksum = "5fa8d0ca26d424d27630da600c6624696e7dec8bf7b3b492b383c5dc49e5e085"
 dependencies = [
  "phf_generator",
- "phf_shared",
+ "phf_shared 0.14.0",
  "proc-macro2",
  "quote",
  "syn 2.0.119",
@@ -3605,6 +3610,15 @@ name = "phf_shared"
 version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e57fef6bc5981e38c2ce2d63bfa546861309f875b8a75f092d1d54ae2d64f266"
+dependencies = [
+ "siphasher",
+]
+
+[[package]]
+name = "phf_shared"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c6fd9027e2d9319be6349febd1db4e8d02aa544921200c9b777720ac34a3aa89"
 dependencies = [
  "siphasher",
 ]
@@ -3708,6 +3722,15 @@ dependencies = [
  "pin-project-lite",
  "rustix",
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "polycool"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "50596ddc09eb5ad5f75cacd40209568e66df71baf86e1499a0e99c4cff12a5a6"
+dependencies = [
+ "arrayvec",
 ]
 
 [[package]]
@@ -4031,9 +4054,24 @@ dependencies = [
  "log",
  "pico-args",
  "rgb",
- "svgtypes",
+ "svgtypes 0.15.3",
  "tiny-skia 0.11.4",
- "usvg",
+ "usvg 0.45.1",
+]
+
+[[package]]
+name = "resvg"
+version = "0.48.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "67e3803f97b999e80cbf7c6ecdd07a8102204d92e1633cf48783720c521196bd"
+dependencies = [
+ "bytemuck",
+ "log",
+ "pico-args",
+ "rgb",
+ "svgtypes 0.16.2",
+ "tiny-skia 0.12.0",
+ "usvg 0.48.1",
 ]
 
 [[package]]
@@ -4064,6 +4102,15 @@ name = "roxmltree"
 version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6c20b6793b5c2fa6553b250154b78d6d0db37e72700ae35fad9387a46f487c97"
+
+[[package]]
+name = "roxmltree"
+version = "0.21.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9da7f59328b09405b181fee1018925fad50f157afb43c0c0f5c522c256dd5907"
+dependencies = [
+ "memchr",
+]
 
 [[package]]
 name = "rustc-hash"
@@ -4430,7 +4477,7 @@ dependencies = [
 [[package]]
 name = "softbuffer"
 version = "0.4.8"
-source = "git+https://github.com/enz1m/enzim-iced.git?rev=67f991b7442cbd79821141069c3b864cc12413f2#67f991b7442cbd79821141069c3b864cc12413f2"
+source = "git+https://github.com/enz1m/enzim-iced.git?rev=a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6#a6483d7eb2f98bd568dfd4a6d5ab0228ace287d6"
 dependencies = [
  "as-raw-xcb-connection",
  "bytemuck",
@@ -4506,6 +4553,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68c7541fff44b35860c1a7a47a7cadf3e4a304c457b58f9870d9706ece028afc"
 dependencies = [
  "kurbo 0.11.3",
+ "siphasher",
+]
+
+[[package]]
+name = "svgtypes"
+version = "0.16.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9f12b12995e3638c70618c1facb1ce65302f6a6f706b675f07c58a5d7391120e"
+dependencies = [
+ "kurbo 0.13.1",
  "siphasher",
 ]
 
@@ -4673,6 +4730,7 @@ dependencies = [
  "bytemuck",
  "cfg-if",
  "log",
+ "png 0.18.1",
  "tiny-skia-path 0.12.0",
 ]
 
@@ -4730,9 +4788,9 @@ checksum = "fd3ca314f692efd6c868f8408f53fe444634a845f96c028b97d35f6a1f79f0ee"
 
 [[package]]
 name = "tokio"
-version = "1.53.2"
+version = "1.54.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e95f91fcc7a621e8b030f6aa23c71fe9838ae2fb4d8118b75602a328f5144044"
+checksum = "b52fd3255258d26fac7264ab5a76b53c13367136dc011d3d6ad4f8ed070396a3"
 dependencies = [
  "bytes",
  "libc",
@@ -5078,21 +5136,40 @@ dependencies = [
  "data-url",
  "flate2",
  "fontdb 0.23.0",
- "imagesize",
+ "imagesize 0.13.0",
  "kurbo 0.11.3",
  "log",
  "pico-args",
- "roxmltree",
+ "roxmltree 0.20.0",
  "rustybuzz",
  "simplecss",
  "siphasher",
  "strict-num",
- "svgtypes",
+ "svgtypes 0.15.3",
  "tiny-skia-path 0.11.4",
  "unicode-bidi",
  "unicode-script",
  "unicode-vo",
  "xmlwriter",
+]
+
+[[package]]
+name = "usvg"
+version = "0.48.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "977d0a4abdef933f424a99fe09f95576e089b90aebc6f016a3bc813762493e91"
+dependencies = [
+ "data-url",
+ "imagesize 0.15.0",
+ "kurbo 0.13.1",
+ "log",
+ "pico-args",
+ "roxmltree 0.21.2",
+ "simplecss",
+ "siphasher",
+ "strict-num",
+ "svgtypes 0.16.2",
+ "tiny-skia-path 0.12.0",
 ]
 
 [[package]]
@@ -5161,12 +5238,11 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen"
-version = "0.2.108"
+version = "0.2.130"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64024a30ec1e37399cf85a7ffefebdb72205ca1c972291c51512360d90bd8566"
+checksum = "a0181c14ddd6c7b8b0b0132a5f1ea2f32be0d893cd3ea97b6e3b28886b8a3d1c"
 dependencies = [
  "cfg-if",
- "once_cell",
  "rustversion",
  "wasm-bindgen-macro",
  "wasm-bindgen-shared",
@@ -5174,23 +5250,20 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-futures"
-version = "0.4.58"
+version = "0.4.80"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70a6e77fd0ae8029c9ea0063f87c46fde723e7d887703d74ad2616d792e51e6f"
+checksum = "5e14e0327cb5368ad60ccb22d04a9827a693c95a926d8d125e9fa39e0baec501"
 dependencies = [
- "cfg-if",
- "futures-util",
  "js-sys",
- "once_cell",
+ "tokio",
  "wasm-bindgen",
- "web-sys",
 ]
 
 [[package]]
 name = "wasm-bindgen-macro"
-version = "0.2.108"
+version = "0.2.130"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "008b239d9c740232e71bd39e8ef6429d27097518b6b30bdf9086833bd5b6d608"
+checksum = "6e931a02a39abdbf66966fc35902b5ed58344750a70885bed4ebb3d8eaf28ed9"
 dependencies = [
  "quote",
  "wasm-bindgen-macro-support",
@@ -5198,22 +5271,22 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-macro-support"
-version = "0.2.108"
+version = "0.2.130"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5256bae2d58f54820e6490f9839c49780dff84c65aeab9e772f15d5f0e913a55"
+checksum = "2ca4b54280e455bd831e33a6b8e734baf432fe63fbc35c42ac14ce67a043a53a"
 dependencies = [
  "bumpalo",
  "proc-macro2",
  "quote",
- "syn 2.0.119",
+ "syn 3.0.6",
  "wasm-bindgen-shared",
 ]
 
 [[package]]
 name = "wasm-bindgen-shared"
-version = "0.2.108"
+version = "0.2.130"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f01b580c9ac74c8d8f0c0e4afb04eeef2acf145458e52c03845ee9cd23e3d12"
+checksum = "3b1f9c3798725016c6ee5f2f57869ec0831e8bbc0ab0310a86e787e97f41389e"
 dependencies = [
  "unicode-ident",
 ]
@@ -5383,9 +5456,9 @@ dependencies = [
 
 [[package]]
 name = "web-sys"
-version = "0.3.85"
+version = "0.3.107"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "312e32e551d92129218ea9a2452120f4aabc03529ef03e4d0d82fb2780608598"
+checksum = "d7d179596ff5ec0f6de4db64d54011bde6289cc49603d3a6e4ce3f329207ab88"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
@@ -5418,8 +5491,8 @@ checksum = "a28ac98ddc8b9274cb41bb4d9d4d5c425b6020c50c46f25559911905610b4a88"
 
 [[package]]
 name = "wgpu"
-version = "29.0.4"
-source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=7f040c8501f6838262c90ede4edfa40940fe2de8#7f040c8501f6838262c90ede4edfa40940fe2de8"
+version = "30.0.2"
+source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=c62972c9be1326882c4b4f1939d8a2713e42d210#c62972c9be1326882c4b4f1939d8a2713e42d210"
 dependencies = [
  "arrayvec",
  "bitflags 2.13.2",
@@ -5427,7 +5500,7 @@ dependencies = [
  "cfg-if",
  "cfg_aliases",
  "document-features",
- "hashbrown 0.16.1",
+ "hashbrown 0.17.1",
  "js-sys",
  "log",
  "naga",
@@ -5447,8 +5520,8 @@ dependencies = [
 
 [[package]]
 name = "wgpu-core"
-version = "29.0.4"
-source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=7f040c8501f6838262c90ede4edfa40940fe2de8#7f040c8501f6838262c90ede4edfa40940fe2de8"
+version = "30.0.2"
+source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=c62972c9be1326882c4b4f1939d8a2713e42d210#c62972c9be1326882c4b4f1939d8a2713e42d210"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -5457,10 +5530,11 @@ dependencies = [
  "bytemuck",
  "cfg_aliases",
  "document-features",
- "hashbrown 0.16.1",
+ "hashbrown 0.17.1",
  "indexmap",
  "log",
  "naga",
+ "naga-types",
  "once_cell",
  "parking_lot",
  "portable-atomic",
@@ -5479,32 +5553,32 @@ dependencies = [
 
 [[package]]
 name = "wgpu-core-deps-apple"
-version = "29.0.4"
-source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=7f040c8501f6838262c90ede4edfa40940fe2de8#7f040c8501f6838262c90ede4edfa40940fe2de8"
+version = "30.0.2"
+source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=c62972c9be1326882c4b4f1939d8a2713e42d210#c62972c9be1326882c4b4f1939d8a2713e42d210"
 dependencies = [
  "wgpu-hal",
 ]
 
 [[package]]
 name = "wgpu-core-deps-emscripten"
-version = "29.0.4"
-source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=7f040c8501f6838262c90ede4edfa40940fe2de8#7f040c8501f6838262c90ede4edfa40940fe2de8"
+version = "30.0.2"
+source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=c62972c9be1326882c4b4f1939d8a2713e42d210#c62972c9be1326882c4b4f1939d8a2713e42d210"
 dependencies = [
  "wgpu-hal",
 ]
 
 [[package]]
 name = "wgpu-core-deps-windows-linux-android"
-version = "29.0.4"
-source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=7f040c8501f6838262c90ede4edfa40940fe2de8#7f040c8501f6838262c90ede4edfa40940fe2de8"
+version = "30.0.2"
+source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=c62972c9be1326882c4b4f1939d8a2713e42d210#c62972c9be1326882c4b4f1939d8a2713e42d210"
 dependencies = [
  "wgpu-hal",
 ]
 
 [[package]]
 name = "wgpu-hal"
-version = "29.0.4"
-source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=7f040c8501f6838262c90ede4edfa40940fe2de8#7f040c8501f6838262c90ede4edfa40940fe2de8"
+version = "30.0.2"
+source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=c62972c9be1326882c4b4f1939d8a2713e42d210#c62972c9be1326882c4b4f1939d8a2713e42d210"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -5518,17 +5592,18 @@ dependencies = [
  "glow",
  "glutin_wgl_sys",
  "gpu-allocator",
- "gpu-descriptor",
- "hashbrown 0.16.1",
+ "hashbrown 0.17.1",
  "js-sys",
  "khronos-egl",
  "libc",
  "libloading",
  "log",
  "naga",
+ "naga-types",
  "ndk-sys",
  "objc2 0.6.5",
  "objc2-core-foundation",
+ "objc2-core-graphics",
  "objc2-foundation 0.3.2",
  "objc2-metal 0.3.2",
  "objc2-quartz-core 0.3.2",
@@ -5543,6 +5618,7 @@ dependencies = [
  "raw-window-metal",
  "renderdoc-sys",
  "smallvec",
+ "static_assertions",
  "thiserror 2.0.21",
  "wasm-bindgen",
  "wayland-sys",
@@ -5556,8 +5632,8 @@ dependencies = [
 
 [[package]]
 name = "wgpu-naga-bridge"
-version = "29.0.4"
-source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=7f040c8501f6838262c90ede4edfa40940fe2de8#7f040c8501f6838262c90ede4edfa40940fe2de8"
+version = "30.0.2"
+source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=c62972c9be1326882c4b4f1939d8a2713e42d210#c62972c9be1326882c4b4f1939d8a2713e42d210"
 dependencies = [
  "naga",
  "wgpu-types",
@@ -5565,14 +5641,16 @@ dependencies = [
 
 [[package]]
 name = "wgpu-types"
-version = "29.0.4"
-source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=7f040c8501f6838262c90ede4edfa40940fe2de8#7f040c8501f6838262c90ede4edfa40940fe2de8"
+version = "30.0.2"
+source = "git+https://github.com/enz1m/enzim-wgpu.git?rev=c62972c9be1326882c4b4f1939d8a2713e42d210#c62972c9be1326882c4b4f1939d8a2713e42d210"
 dependencies = [
  "bitflags 2.13.2",
  "bytemuck",
  "js-sys",
  "log",
+ "naga-types",
  "raw-window-handle",
+ "static_assertions",
  "web-sys",
 ]
 
@@ -5854,7 +5932,7 @@ checksum = "d6bbff5f0aada427a1e5a6da5f1f98158182f26556f345ac9e04d36d0ebed650"
 [[package]]
 name = "winit"
 version = "0.30.13"
-source = "git+https://github.com/enz1m/enzim-winit.git?rev=f6ce16941bf815a438db7e628ab1126ce48e31dd#f6ce16941bf815a438db7e628ab1126ce48e31dd"
+source = "git+https://github.com/enz1m/enzim-winit.git?rev=40eeb41f8637ef1620afa377ba006874224b6d65#40eeb41f8637ef1620afa377ba006874224b6d65"
 dependencies = [
  "ahash",
  "android-activity",
@@ -6053,8 +6131,8 @@ dependencies = [
 
 [[package]]
 name = "zbus"
-version = "5.18.0"
-source = "git+https://github.com/enz1m/enzim-zbus.git?rev=815a9ca7b64aa24e14ccb6ea3f7eda97ef7bbc8a#815a9ca7b64aa24e14ccb6ea3f7eda97ef7bbc8a"
+version = "5.19.0"
+source = "git+https://github.com/enz1m/enzim-zbus.git?rev=e182645b56d15e637bb6c8144f99ebfa7f900716#e182645b56d15e637bb6c8144f99ebfa7f900716"
 dependencies = [
  "async-broadcast",
  "async-executor",
@@ -6112,13 +6190,13 @@ dependencies = [
 
 [[package]]
 name = "zbus_macros"
-version = "5.18.0"
-source = "git+https://github.com/enz1m/enzim-zbus.git?rev=815a9ca7b64aa24e14ccb6ea3f7eda97ef7bbc8a#815a9ca7b64aa24e14ccb6ea3f7eda97ef7bbc8a"
+version = "5.19.0"
+source = "git+https://github.com/enz1m/enzim-zbus.git?rev=e182645b56d15e637bb6c8144f99ebfa7f900716#e182645b56d15e637bb6c8144f99ebfa7f900716"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",
  "quote",
- "syn 2.0.119",
+ "syn 3.0.6",
  "zbus_names",
  "zvariant",
  "zvariant_utils",
@@ -6126,8 +6204,8 @@ dependencies = [
 
 [[package]]
 name = "zbus_names"
-version = "4.3.4"
-source = "git+https://github.com/enz1m/enzim-zbus.git?rev=815a9ca7b64aa24e14ccb6ea3f7eda97ef7bbc8a#815a9ca7b64aa24e14ccb6ea3f7eda97ef7bbc8a"
+version = "4.3.5"
+source = "git+https://github.com/enz1m/enzim-zbus.git?rev=e182645b56d15e637bb6c8144f99ebfa7f900716#e182645b56d15e637bb6c8144f99ebfa7f900716"
 dependencies = [
  "serde",
  "winnow",
@@ -6144,6 +6222,15 @@ dependencies = [
  "winnow",
  "zbus_names",
  "zvariant",
+]
+
+[[package]]
+name = "zcheapstr"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "939f186d9ecebe044315a5cb6d6f78568bbc21152adc954d5a0c2f58bdbc9920"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
@@ -6263,37 +6350,38 @@ dependencies = [
 
 [[package]]
 name = "zvariant"
-version = "5.13.1"
-source = "git+https://github.com/enz1m/enzim-zbus.git?rev=815a9ca7b64aa24e14ccb6ea3f7eda97ef7bbc8a#815a9ca7b64aa24e14ccb6ea3f7eda97ef7bbc8a"
+version = "5.15.1"
+source = "git+https://github.com/enz1m/enzim-zbus.git?rev=e182645b56d15e637bb6c8144f99ebfa7f900716#e182645b56d15e637bb6c8144f99ebfa7f900716"
 dependencies = [
  "endi",
  "enumflags2",
  "serde",
  "winnow",
+ "zcheapstr",
  "zvariant_derive",
  "zvariant_utils",
 ]
 
 [[package]]
 name = "zvariant_derive"
-version = "5.13.1"
-source = "git+https://github.com/enz1m/enzim-zbus.git?rev=815a9ca7b64aa24e14ccb6ea3f7eda97ef7bbc8a#815a9ca7b64aa24e14ccb6ea3f7eda97ef7bbc8a"
+version = "5.15.1"
+source = "git+https://github.com/enz1m/enzim-zbus.git?rev=e182645b56d15e637bb6c8144f99ebfa7f900716#e182645b56d15e637bb6c8144f99ebfa7f900716"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",
  "quote",
- "syn 2.0.119",
+ "syn 3.0.6",
  "zvariant_utils",
 ]
 
 [[package]]
 name = "zvariant_utils"
-version = "3.5.0"
-source = "git+https://github.com/enz1m/enzim-zbus.git?rev=815a9ca7b64aa24e14ccb6ea3f7eda97ef7bbc8a#815a9ca7b64aa24e14ccb6ea3f7eda97ef7bbc8a"
+version = "4.2.0"
+source = "git+https://github.com/enz1m/enzim-zbus.git?rev=e182645b56d15e637bb6c8144f99ebfa7f900716#e182645b56d15e637bb6c8144f99ebfa7f900716"
 dependencies = [
  "proc-macro2",
  "quote",
  "serde",
- "syn 2.0.119",
+ "syn 3.0.6",
  "winnow",
 ]
