@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<component type="desktop-application">
+  <id>io.enz.Messages</id>
+  <name>Messages</name>
+  <summary>Chat over Signal, Matrix, and WhatsApp</summary>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <developer id="io.github.enz1m">
+    <name>enzUI contributors</name>
+  </developer>
+  <launchable type="desktop-id">io.enz.Messages.desktop</launchable>
+  <content_rating type="oars-1.1" />
+  <description>
+    <p>Read and send messages through supported Signal, Matrix, and WhatsApp accounts. Manage conversations, attach files, and receive desktop notifications.</p>
+  </description>
+  <url type="homepage">https://github.com/enz1m/messages</url>
+  <url type="bugtracker">https://github.com/enz1m/messages/issues</url>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/enz1m/messages/f90edcbcebc1b6d9f2a9ed6da9b2f8d40cf7e6fd/docs/screenshots/basic-dark.png</image>
+    </screenshot>
+  </screenshots>
+  <releases>
+    <release version="0.1.0" date="2026-11-20">
+      <description>
+        <p>Add Flatpak packaging for enzim Apps.</p>
+      </description>
+    </release>
+  </releases>
+</component>

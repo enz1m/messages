@@ -1,0 +1,80 @@
+{
+  "app-id": "io.enz.Messages",
+  "branch": "stable",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "51",
+  "sdk": "org.gnome.Sdk",
+  "sdk-extensions": [
+    "org.freedesktop.Sdk.Extension.rust-stable"
+  ],
+  "command": "enz-messages",
+  "finish-args": [
+    "--socket=wayland",
+    "--device=dri",
+    "--share=network",
+    "--socket=pulseaudio",
+    "--talk-name=org.freedesktop.secrets",
+    "--talk-name=org.freedesktop.Notifications"
+  ],
+  "build-options": {
+    "append-path": "/usr/lib/sdk/rust-stable/bin"
+  },
+  "modules": [
+    {
+      "name": "messages",
+      "buildsystem": "simple",
+      "build-commands": [
+        "cargo build --locked --offline --release --jobs \"${FLATPAK_BUILDER_N_JOBS:-2}\" --bin enz-messages",
+        "install -Dm755 target/release/enz-messages /app/bin/enz-messages",
+        "install -Dm644 assets/io.enz.Messages.desktop /app/share/applications/io.enz.Messages.desktop",
+        "install -Dm644 packaging/flatpak/io.enz.Messages.metainfo.xml /app/share/metainfo/io.enz.Messages.metainfo.xml",
+        "install -Dm644 assets/io.enz.Messages.svg /app/share/icons/hicolor/scalable/apps/io.enz.Messages.svg",
+        "install -Dm644 LICENSE /app/share/licenses/io.enz.Messages/LICENSE",
+        "AWS_LC_SYS_CMAKE_BUILDER=1 cargo build --locked --offline --release --jobs \"${FLATPAK_BUILDER_N_JOBS:-2}\" --manifest-path crates/messages-bridge/Cargo.toml --target-dir target --features matrix,whatsapp --bins",
+        "install -Dm755 target/release/messages-matrix /app/bin/messages-matrix",
+        "install -Dm755 target/release/messages-whatsapp /app/bin/messages-whatsapp",
+        "if [ -f signal-runtime/signal-cli ]; then echo \"1bba70955366b675454010468ab10f1f68bad0ea426d44e20868116ab13c604c  signal-runtime/signal-cli\" | sha256sum -c - && install -Dm755 signal-runtime/signal-cli /app/bin/signal-cli && install -Dm644 signal-runtime/signal-cli-source.tar.gz /app/share/licenses/io.enz.Messages/signal-cli/source.tar.gz && tar -xOf signal-runtime/signal-cli-source.tar.gz signal-cli-0.14.9/LICENSE > /app/share/licenses/io.enz.Messages/signal-cli/LICENSE; fi"
+      ],
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://github.com/enz1m/messages.git",
+          "commit": "@ENZIM_SOURCE_COMMIT@",
+          "disable-submodules": true
+        },
+        {
+          "type": "archive",
+          "url": "https://github.com/enz1m/messages/releases/download/v0.1.0/messages-cargo-vendor-0.1.0.tar.xz",
+          "sha256": "3e4eea9f2f1853fb10061b70f8ba2e7cd9102f867c09ab0909c50a2639dda730",
+          "strip-components": 1
+        },
+        {
+          "type": "file",
+          "url": "https://raw.githubusercontent.com/enz1m/enzim-winit/40eeb41f8637ef1620afa377ba006874224b6d65/wayland-protocols/xdg-session-management-v1.xml",
+          "sha256": "3674591ca8e68f76297c535e8edd6783d84b59086c38ebe08ff5ff1f2dec5bae",
+          "dest": "vendor/winit-0.30.13/wayland-protocols"
+        },
+        {
+          "type": "archive",
+          "url": "https://github.com/AsamK/signal-cli/releases/download/v0.14.9/signal-cli-0.14.9-Linux-native.tar.gz",
+          "sha256": "a8fab78b5e8053abf3db5725272957ad11d1745b9a16848ddb2ace4743dfa5d5",
+          "strip-components": 0,
+          "dest": "signal-runtime",
+          "only-arches": [
+            "x86_64"
+          ]
+        },
+        {
+          "type": "file",
+          "url": "https://codeload.github.com/AsamK/signal-cli/tar.gz/refs/tags/v0.14.9",
+          "sha256": "2316adb253a97cb9e35911303362386ca0c1b19515a886a4824ac95e6706191b",
+          "dest": "signal-runtime",
+          "dest-filename": "signal-cli-source.tar.gz",
+          "only-arches": [
+            "x86_64"
+          ]
+        }
+      ]
+    }
+  ]
+}
