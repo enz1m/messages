@@ -111,16 +111,50 @@ pub(super) fn view(app: &App) -> Element<'_, Message> {
         enz_text(text("messages-privacy")).size(TextSize::Headline),
         hint("Read receipts and typing indicators are configured separately for each account in Accounts."),
     ].spacing(16);
+    let connected = app
+        .notifications
+        .as_ref()
+        .is_some_and(|client| client.ready());
     let mut notifications = column![
-        enz_text("Notifications").size(TextSize::Headline),
-        switch_row(app.preferences.notifications, "Desktop notifications", |v|Message::Preference(Preference::Notifications(v))),
-        switch_row(app.preferences.notification_preview, "Show message previews", |v|Message::Preference(Preference::NotificationPreview(v))),
-        hint("Notifications appear for unread incoming messages. Muted conversations stay quiet. System permissions and Do Not Disturb also apply."),
-        hint(if app.notifications.as_ref().is_some_and(|n|n.ready()){"Desktop notification service connected"}else{"Desktop notification service unavailable or connecting"}),
-        enz_button("Send test notification",Message::TestNotification).id(WidgetId::new("messages-test-notification")).enabled(app.preferences.notifications && app.notifications.as_ref().is_some_and(|n|n.ready())),
-        if app.notifications.is_none() { enz_button("Retry notification service", Message::RetryNotifications).id(WidgetId::new("messages-retry-notifications")).enabled(!app.notification_connecting).into_element() } else { Space::new().into() },
-        enz_text("Accounts").size(TextSize::Caption),
-    ].spacing(14);
+        enz_text(text("messages-notification-page")).size(TextSize::Headline),
+        switch_row(
+            app.preferences.notifications,
+            text("messages-notifications"),
+            |enabled| Message::Preference(Preference::Notifications(enabled))
+        ),
+        switch_row(
+            app.preferences.notification_preview,
+            text("messages-previews"),
+            |enabled| Message::Preference(Preference::NotificationPreview(enabled))
+        ),
+        hint(text("messages-notification-help")),
+        hint(text(if connected {
+            "messages-notification-service-connected"
+        } else {
+            "messages-notification-service-unavailable"
+        })),
+        enz_button(
+            text("messages-notification-test-button"),
+            Message::TestNotification,
+        )
+        .id(WidgetId::new("messages-test-notification"))
+        .enabled(app.preferences.notifications && connected),
+    ]
+    .spacing(14);
+    if app.notifications.is_none() {
+        notifications = notifications.push(
+            enz_button(
+                text("messages-notification-retry"),
+                Message::RetryNotifications,
+            )
+            .id(WidgetId::new("messages-retry-notifications"))
+            .enabled(!app.notification_connecting),
+        );
+    }
+    if !app.store.accounts.is_empty() {
+        notifications =
+            notifications.push(enz_text(text("messages-accounts")).size(TextSize::Caption));
+    }
     for account in &app.store.accounts {
         let id = account.id;
         notifications = notifications.push(
@@ -154,7 +188,7 @@ pub(super) fn view(app: &App) -> Element<'_, Message> {
         .page(
             enzui_iced_widgets::settings_dialog::SettingsPage::new(
                 "notifications",
-                "Notifications",
+                text("messages-notification-page"),
             )
             .icon("bell"),
             notifications,

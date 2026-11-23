@@ -1,5 +1,7 @@
 use enzui_iced_core::{
+    activation::ActivationContext,
     app_data::AppId,
+    localization::text,
     portal::notification::{
         self as native, DesktopNotification, DesktopNotificationClient, NotificationAction,
         NotificationActionId, NotificationButton, NotificationEvent, NotificationId,
@@ -13,6 +15,9 @@ use std::{
 };
 use uuid::Uuid;
 
+const TEST_ID: &str = "notification-test";
+const OPEN_SETTINGS: &str = "open-notification-settings";
+
 #[derive(Debug)]
 pub enum Event {
     Posted(Uuid, u32),
@@ -20,7 +25,8 @@ pub enum Event {
     TestFailed,
     Closed(u32),
     Action(u32, String),
-    Activation(u32, enzui_iced_core::activation::ActivationContext),
+    Activation(u32, ActivationContext),
+    OpenNotificationSettings(Option<ActivationContext>),
     Reply(u32, String),
     Failed(Uuid),
     Unavailable,
@@ -34,11 +40,25 @@ pub struct Notice {
     pub reply: bool,
 }
 
+enum Post {
+    Conversation { id: u32, notice: Notice },
+    Test,
+}
+
 struct Pending {
-    id: u32,
-    notice: Notice,
+    post: Post,
     actions: bool,
-    test: bool,
+}
+
+impl Post {
+    fn result(self, sent: bool) -> Event {
+        match (self, sent) {
+            (Self::Conversation { id, notice }, true) => Event::Posted(notice.ticket, id),
+            (Self::Conversation { notice, .. }, false) => Event::Failed(notice.ticket),
+            (Self::Test, true) => Event::TestPosted,
+            (Self::Test, false) => Event::TestFailed,
+        }
+    }
 }
 
 struct State {
@@ -65,32 +85,60 @@ fn action(id: &str) -> NotificationAction {
 }
 
 impl State {
-    fn submit(&mut self, pending: Pending) -> bool {
-        let mut payload = DesktopNotification::new(local_id(pending.id), &pending.notice.title)
-            .body(&pending.notice.body)
-            .category("im.received")
-            .icon(native::NotificationIcon::Themed(vec![
-                "io.enz.Messages".into(),
-            ]));
-        if pending.actions {
-            payload = payload
-                .default_action(action("default"))
-                .button(NotificationButton::new("Mark as read", action("mark-read")));
-            if pending.notice.reply {
-                payload = payload.inline_reply(NotificationInlineReply::new(
-                    action("reply"),
-                    "Reply…",
-                    "Send",
-                ));
+    fn submit(&mut self, pending: Pending) -> Result<(), Post> {
+        let payload = match &pending.post {
+            Post::Conversation { id, notice } => {
+                let mut payload = DesktopNotification::new(local_id(*id), &notice.title)
+                    .body(&notice.body)
+                    .category("im.received");
+                if pending.actions {
+                    payload =
+                        payload
+                            .default_action(action("default"))
+                            .button(NotificationButton::new(
+                                text("messages-notification-mark-read"),
+                                action("mark-read"),
+                            ));
+                    if notice.reply {
+                        payload = payload.inline_reply(NotificationInlineReply::new(
+                            action("reply"),
+                            text("messages-notification-reply"),
+                            text("messages-notification-send"),
+                        ));
+                    }
+                }
+                payload
+            }
+            Post::Test => {
+                let mut payload = DesktopNotification::new(
+                    NotificationId::new(TEST_ID).expect("fixed test identity"),
+                    text("messages-notification-test-title"),
+                )
+                .body(text(if pending.actions {
+                    "messages-notification-test-body"
+                } else {
+                    "messages-notification-test-body-passive"
+                }));
+                if pending.actions {
+                    payload = payload.default_action(action(OPEN_SETTINGS));
+                }
+                payload
             }
         }
+        .icon(native::NotificationIcon::Themed(vec![
+            "io.enz.Messages".into(),
+        ]));
         match self.native.send(payload) {
             Ok(receipt) => {
                 self.pending.insert(receipt.operation, pending);
-                true
+                Ok(())
             }
-            Err(_) => false,
+            Err(_) => Err(pending.post),
         }
+    }
+
+    fn can_submit(&self) -> bool {
+        self.ready && self.pending.len() < native::MAX_PENDING_NOTIFICATION_OPERATIONS
     }
 }
 
@@ -127,26 +175,8 @@ impl Client {
     }
 
     pub fn post(&self, notice: Notice) -> bool {
-        self.post_with_actions(notice, true)
-    }
-
-    pub fn post_test(&self) -> bool {
-        self.post_with_actions(
-            Notice {
-                ticket: Uuid::new_v4(),
-                room: "messages:test".into(),
-                title: "Messages".into(),
-                body: "Desktop notifications are working.".into(),
-                reply: false,
-            },
-            false,
-        )
-    }
-
-    fn post_with_actions(&self, notice: Notice, actions: bool) -> bool {
         let mut state = self.0.lock().expect("notification state");
-        // Service readiness arrives through the native wake subscription.
-        if !state.ready || state.pending.len() >= native::MAX_PENDING_NOTIFICATION_OPERATIONS {
+        if !state.can_submit() {
             return false;
         }
         let id = if let Some(id) = state.rooms.get(&notice.room) {
@@ -162,19 +192,32 @@ impl Client {
             state.rooms.insert(notice.room.clone(), id);
             id
         };
-        state.submit(Pending {
-            id,
-            notice,
-            actions,
-            test: !actions,
-        })
+        state
+            .submit(Pending {
+                post: Post::Conversation { id, notice },
+                actions: true,
+            })
+            .is_ok()
+    }
+
+    pub fn post_test(&self) -> bool {
+        let mut state = self.0.lock().expect("notification state");
+        state.can_submit()
+            && state
+                .submit(Pending {
+                    post: Post::Test,
+                    actions: true,
+                })
+                .is_ok()
     }
 
     pub fn close(&self, id: u32) {
         let mut state = self.0.lock().expect("notification state");
         let _ = state.native.withdraw(&local_id(id));
         state.rooms.retain(|_, value| *value != id);
-        state.pending.retain(|_, pending| pending.id != id);
+        state.pending.retain(|_, pending| {
+            !matches!(&pending.post, Post::Conversation { id: posted, .. } if *posted == id)
+        });
     }
 
     pub fn drain(&self) -> Vec<Event> {
@@ -204,62 +247,59 @@ impl Client {
                     match outcome {
                         NotificationOperationOutcome::Sent
                         | NotificationOperationOutcome::Replaced => {
-                            events.push(if pending.test {
-                                Event::TestPosted
-                            } else {
-                                Event::Posted(pending.notice.ticket, pending.id)
-                            });
+                            events.push(pending.post.result(true));
                         }
                         NotificationOperationOutcome::Unsupported(feature) => {
-                            match feature {
-                                native::UnsupportedNotificationFeature::InlineReply => {
-                                    pending.notice.reply = false
-                                }
-                                native::UnsupportedNotificationFeature::ActionDelivery => {
-                                    pending.actions = false
+                            match (feature, &mut pending.post) {
+                                (
+                                    native::UnsupportedNotificationFeature::InlineReply,
+                                    Post::Conversation { notice, .. },
+                                ) if notice.reply => notice.reply = false,
+                                (native::UnsupportedNotificationFeature::ActionDelivery, _)
+                                    if pending.actions =>
+                                {
+                                    pending.actions = false;
                                 }
                                 _ => {
-                                    events.push(if pending.test {
-                                        Event::TestFailed
-                                    } else {
-                                        Event::Failed(pending.notice.ticket)
-                                    });
+                                    events.push(pending.post.result(false));
                                     continue;
                                 }
                             }
-                            let ticket = pending.notice.ticket;
-                            let test = pending.test;
-                            if !state.submit(pending) {
-                                events.push(if test {
-                                    Event::TestFailed
-                                } else {
-                                    Event::Failed(ticket)
-                                });
+                            if let Err(post) = state.submit(pending) {
+                                events.push(post.result(false));
                             }
                         }
-                        _ => events.push(if pending.test {
-                            Event::TestFailed
-                        } else {
-                            Event::Failed(pending.notice.ticket)
-                        }),
+                        _ => events.push(pending.post.result(false)),
                     }
                 }
                 NotificationEvent::Action(invocation) => {
+                    let context = state
+                        .activation
+                        .admit_notification_context(
+                            invocation.activation_context,
+                            invocation.received_at,
+                        )
+                        .ok()
+                        .flatten();
+                    let action_id = invocation.action_id.as_str();
+                    if invocation.notification_id.as_str() == TEST_ID {
+                        if action_id == OPEN_SETTINGS {
+                            events.push(Event::OpenNotificationSettings(context));
+                        }
+                        continue;
+                    }
                     let Ok(id) = invocation.notification_id.as_str().parse() else {
                         continue;
                     };
-                    if let Ok(Some(context)) = state.activation.admit_notification_context(
-                        invocation.activation_context,
-                        invocation.received_at,
-                    ) {
+                    if let Some(context) = context {
                         events.push(Event::Activation(id, context));
                     }
-                    if invocation.action_id.as_str() == "reply" {
+                    if action_id == "reply" {
                         if let Some(text) = invocation.response {
                             events.push(Event::Reply(id, text));
                         }
                     } else {
-                        events.push(Event::Action(id, invocation.action_id.as_str().to_owned()));
+                        events.push(Event::Action(id, action_id.to_owned()));
                     }
                 }
                 NotificationEvent::ServiceChanged {

@@ -22,6 +22,25 @@ messages-corners = Nachrichtenecken
 messages-group-times = Zeitstempel gruppieren
 messages-notifications = Desktop-Benachrichtigungen
 messages-previews = Nachrichtenvorschau in Benachrichtigungen
+messages-notification-page = Benachrichtigungen
+messages-notification-help = Benachrichtigungen erscheinen bei ungelesenen eingehenden Nachrichten. Stummgeschaltete Unterhaltungen bleiben still. Systemberechtigungen und „Nicht stören“ gelten ebenfalls.
+messages-notification-service-connected = Benachrichtigungsdienst verbunden
+messages-notification-service-unavailable = Benachrichtigungsdienst nicht verfügbar oder wird verbunden
+messages-notification-test-button = Testbenachrichtigung senden
+messages-notification-retry = Verbindung erneut versuchen
+messages-notification-test-title = Testbenachrichtigung
+messages-notification-test-body = Desktop-Benachrichtigungen funktionieren. Wähle diese Benachrichtigung aus, um die Einstellungen von Nachrichten zu öffnen.
+messages-notification-test-body-passive = Desktop-Benachrichtigungen funktionieren.
+messages-notification-test-not-ready = Desktop-Benachrichtigungen sind noch nicht bereit. Überprüfe die Benachrichtigungseinstellungen des Systems und versuche es erneut.
+messages-notification-test-failed = Die Testbenachrichtigung konnte nicht angezeigt werden. Überprüfe die Benachrichtigungsberechtigungen des Systems.
+messages-notification-mark-read = Als gelesen markieren
+messages-notification-reply = Antworten …
+messages-notification-send = Senden
+messages-notification-unread =
+    { $count ->
+        [one] Eine ungelesene Nachricht
+       *[other] { $count } ungelesene Nachrichten
+    }
 messages-cancel = Abbrechen
 messages-close = Schließen
 messages-delete = Löschen

@@ -22,6 +22,25 @@ messages-corners = Bubble corners
 messages-group-times = Group nearby message timestamps
 messages-notifications = Desktop notifications
 messages-previews = Show message previews in notifications
+messages-notification-page = Notifications
+messages-notification-help = Notifications appear for unread incoming messages. Muted conversations stay quiet. System permissions and Do Not Disturb also apply.
+messages-notification-service-connected = Desktop notification service connected
+messages-notification-service-unavailable = Desktop notification service unavailable or connecting
+messages-notification-test-button = Send test notification
+messages-notification-retry = Retry notification service
+messages-notification-test-title = Test notification
+messages-notification-test-body = Desktop notifications are working. Select this notification to open Messages settings.
+messages-notification-test-body-passive = Desktop notifications are working.
+messages-notification-test-not-ready = Desktop notifications are not ready. Check your system notification settings and try again.
+messages-notification-test-failed = The test notification could not be shown. Check your system notification permissions.
+messages-notification-mark-read = Mark as read
+messages-notification-reply = Reply…
+messages-notification-send = Send
+messages-notification-unread =
+    { $count ->
+        [one] One unread message
+       *[other] { $count } unread messages
+    }
 messages-cancel = Cancel
 messages-close = Close
 messages-delete = Delete

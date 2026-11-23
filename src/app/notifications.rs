@@ -1,5 +1,6 @@
-use super::{App, Message, lifecycle::Session};
+use super::{App, Dialog, Message, lifecycle::Session};
 use crate::platform::notifications::{Event, Notice};
+use enzui_iced_core::{activation::ActivationContext, localization::text};
 use iced::Task;
 use messages_core::{AccountId, Capability, RoomKey};
 use uuid::Uuid;
@@ -12,6 +13,39 @@ pub struct Binding {
     pub message: String,
 }
 
+fn preview_text(value: &str, max_chars: usize) -> String {
+    let mut chars = value.trim().chars();
+    let mut preview: String = chars
+        .by_ref()
+        .take(max_chars)
+        .map(|character| {
+            if character.is_control() {
+                ' '
+            } else {
+                character
+            }
+        })
+        .collect();
+    if chars.next().is_some() {
+        preview.push('…');
+    }
+    preview
+}
+
+fn focus_window(context: Option<ActivationContext>) -> Task<Message> {
+    if let Some(context) = context {
+        let mut context = Some(context);
+        iced::window::latest().then(move |window| match (window, context.take()) {
+            (Some(window), Some(context)) => context
+                .activate(window, std::time::Instant::now())
+                .map(|_| Message::ActivationFinished),
+            _ => Task::none(),
+        })
+    } else {
+        iced::window::latest().and_then(iced::window::gain_focus)
+    }
+}
+
 impl App {
     pub(super) fn test_notification(&mut self) {
         if !self.preferences.notifications {
@@ -22,7 +56,7 @@ impl App {
             .as_ref()
             .is_some_and(|client| client.post_test())
         {
-            self.notice=Some("Desktop notifications are not ready. Check your system notification settings and try again.".into());
+            self.notice = Some(text("messages-notification-test-not-ready").into());
         }
     }
 
@@ -144,19 +178,19 @@ impl App {
             }
             let ticket = Uuid::new_v4();
             let body = if self.preferences.notification_preview {
-                room.preview().chars().take(240).collect()
+                preview_text(room.preview(), 240)
             } else {
-                format!(
-                    "{} unread message{}",
-                    room.unread,
-                    if room.unread == 1 { "" } else { "s" }
-                )
+                enzui_iced_core::localized!("messages-notification-unread", "count" => room.unread)
             };
+            let mut title = preview_text(&room.title, 60);
+            if title.trim().is_empty() {
+                title = text("messages-messages");
+            }
             let session = self.session(account);
             if client.post(Notice {
                 ticket,
                 room: format!("{}:{}", account, room.key.room),
-                title: room.title.chars().take(60).collect(),
+                title,
                 body,
                 reply: self
                     .store
@@ -181,13 +215,27 @@ impl App {
     }
 
     pub(super) fn notification_event(&mut self, event: Event) -> Task<Message> {
-        if self.stop_mode.is_some() && matches!(&event, Event::Action(..) | Event::Reply(..)) {
+        if self.stop_mode.is_some()
+            && matches!(
+                &event,
+                Event::Action(..) | Event::Reply(..) | Event::OpenNotificationSettings(_)
+            )
+        {
             return Task::none();
         }
         match event {
             Event::TestPosted => {}
             Event::TestFailed => {
-                self.notice=Some("The test notification could not be shown. Check your system notification permissions.".into());
+                self.notice = Some(text("messages-notification-test-failed").into());
+            }
+            Event::OpenNotificationSettings(context) => {
+                let open = if self.dialog == Some(Dialog::Settings) {
+                    Task::none()
+                } else {
+                    self.open_dialog(Dialog::Settings)
+                };
+                let page = self.reduce(Message::SettingsPage("notifications".into()));
+                return Task::batch([open, page, focus_window(context)]);
             }
             Event::Closed(id) => {
                 self.notification_bindings.remove(&id);
@@ -220,20 +268,7 @@ impl App {
                 };
                 match action.as_str() {
                     "default" => {
-                        let focus = if let Some(context) = self.notification_activations.remove(&id)
-                        {
-                            let mut context = Some(context);
-                            iced::window::latest().then(move |window| {
-                                match (window, context.take()) {
-                                    (Some(window), Some(context)) => context
-                                        .activate(window, std::time::Instant::now())
-                                        .map(|_| Message::ActivationFinished),
-                                    _ => Task::none(),
-                                }
-                            })
-                        } else {
-                            iced::window::latest().and_then(iced::window::gain_focus)
-                        };
+                        let focus = focus_window(self.notification_activations.remove(&id));
                         return Task::batch([self.update(Message::Select(binding.room)), focus]);
                     }
                     "mark-read" => {

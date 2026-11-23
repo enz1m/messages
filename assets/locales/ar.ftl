@@ -22,6 +22,28 @@ messages-corners = زوايا الرسائل
 messages-group-times = تجميع أوقات الرسائل المتقاربة
 messages-notifications = إشعارات سطح المكتب
 messages-previews = عرض معاينات الرسائل في الإشعارات
+messages-notification-page = الإشعارات
+messages-notification-help = تظهر الإشعارات للرسائل الواردة غير المقروءة. لا تظهر إشعارات المحادثات المكتومة. تسري أيضًا أذونات النظام ووضع عدم الإزعاج.
+messages-notification-service-connected = خدمة إشعارات سطح المكتب متصلة
+messages-notification-service-unavailable = خدمة إشعارات سطح المكتب غير متاحة أو يتم الاتصال بها
+messages-notification-test-button = إرسال إشعار تجريبي
+messages-notification-retry = إعادة محاولة الاتصال بخدمة الإشعارات
+messages-notification-test-title = إشعار تجريبي
+messages-notification-test-body = إشعارات سطح المكتب تعمل. اختر هذا الإشعار لفتح إعدادات تطبيق الرسائل.
+messages-notification-test-body-passive = إشعارات سطح المكتب تعمل.
+messages-notification-test-not-ready = إشعارات سطح المكتب غير جاهزة. تحقق من إعدادات إشعارات النظام وحاول مجددًا.
+messages-notification-test-failed = تعذّر عرض الإشعار التجريبي. تحقق من أذونات الإشعارات في النظام.
+messages-notification-mark-read = وضع علامة مقروء
+messages-notification-reply = رد…
+messages-notification-send = إرسال
+messages-notification-unread =
+    { $count ->
+        [zero] لا توجد رسائل غير مقروءة
+        [one] رسالة واحدة غير مقروءة
+        [two] رسالتان غير مقروءتين
+        [few] { $count } رسائل غير مقروءة
+       *[other] { $count } رسالة غير مقروءة
+    }
 messages-cancel = إلغاء
 messages-close = إغلاق
 messages-delete = حذف

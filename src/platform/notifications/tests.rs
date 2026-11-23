@@ -35,10 +35,19 @@ use tokio::{
 
 struct Server {
     next_id: std::sync::atomic::AtomicU32,
-    posted: mpsc::Sender<(u32, u32, Vec<String>)>,
+    posted: mpsc::Sender<Posted>,
     closed: mpsc::Sender<u32>,
     capabilities: Vec<String>,
 }
+
+struct Posted {
+    id: u32,
+    replaces: u32,
+    summary: String,
+    body: String,
+    actions: Vec<String>,
+}
+
 #[zbus::interface(name = "org.freedesktop.Notifications")]
 impl Server {
     fn get_capabilities(&self) -> Vec<String> {
@@ -50,8 +59,8 @@ impl Server {
         _app_name: &str,
         replaces_id: u32,
         _app_icon: &str,
-        _summary: &str,
-        _body: &str,
+        summary: &str,
+        body: &str,
         actions: Vec<String>,
         _hints: HashMap<String, OwnedValue>,
         _expire_timeout: i32,
@@ -62,7 +71,16 @@ impl Server {
         } else {
             replaces_id
         };
-        self.posted.send((id, replaces_id, actions)).await.unwrap();
+        self.posted
+            .send(Posted {
+                id,
+                replaces: replaces_id,
+                summary: summary.to_owned(),
+                body: body.to_owned(),
+                actions,
+            })
+            .await
+            .unwrap();
         id
     }
     async fn close_notification(&self, id: u32) {
@@ -72,13 +90,14 @@ impl Server {
 
 async fn app_history_and_foreground_are_quiet(
     client: Arc<Client>,
-    posted: &mut mpsc::Receiver<(u32, u32, Vec<String>)>,
+    posted: &mut mpsc::Receiver<Posted>,
     closed: &mut mpsc::Receiver<u32>,
 ) {
     use crate::app::{App, Message};
     use messages_protocols::SyncBatch;
 
     let (mut app, _) = App::new();
+    let locale = crate::platform::localization::localizer();
     app.loading = false;
     app.demo = false;
     app.window_focused = false;
@@ -88,6 +107,8 @@ async fn app_history_and_foreground_are_quiet(
     let account = visible.key.account;
     let mut background = visible.clone();
     background.key.room = "notification-background".into();
+    background.title = format!("Room\0{}", "📨".repeat(65));
+    app.preferences.notification_preview = false;
     let key = background.key.clone();
     let mut message = background.messages[0].clone();
     message.own = false;
@@ -115,13 +136,15 @@ async fn app_history_and_foreground_are_quiet(
     ] {
         message.id = id.into();
         message.timestamp = timestamp;
-        let _ = app.update(Message::Synced(
-            account,
-            Ok(SyncBatch {
-                messages: vec![(key.clone(), vec![message.clone()])],
-                ..Default::default()
-            }),
-        ));
+        let _ = locale.scope(|| {
+            app.update(Message::Synced(
+                account,
+                Ok(SyncBatch {
+                    messages: vec![(key.clone(), vec![message.clone()])],
+                    ..Default::default()
+                }),
+            ))
+        });
         if matches!(id, "late-history" | "live-foreground") {
             assert!(app.notification_pending.is_empty());
             assert!(
@@ -136,7 +159,19 @@ async fn app_history_and_foreground_are_quiet(
                 1,
                 "{id}: expected a live notification"
             );
-            let (server_id, _, _) = received(posted).await;
+            let note = received(posted).await;
+            assert!(note.summary.starts_with("Room "));
+            assert!(note.summary.ends_with('…'));
+            assert!(note.summary.len() <= native::MAX_NOTIFICATION_TITLE_BYTES);
+            assert_eq!(
+                note.body,
+                locale.scope(|| {
+                    enzui_iced_core::localized!(
+                        "messages-notification-unread",
+                        "count" => app.store.room(&key).unwrap().unread
+                    )
+                })
+            );
             tokio::time::timeout(Duration::from_secs(3), async {
                 while app.notification_bindings.is_empty() {
                     let _ = app.update(Message::NotificationWake);
@@ -150,7 +185,7 @@ async fn app_history_and_foreground_are_quiet(
                 tokio::time::timeout(Duration::from_secs(3), closed.recv())
                     .await
                     .expect("foreground withdraw reaches notification server"),
-                Some(server_id)
+                Some(note.id)
             );
             assert!(app.notification_bindings.is_empty());
             assert!(app.notification_pending.is_empty());
@@ -169,10 +204,11 @@ async fn app_history_and_foreground_are_quiet(
     }
 }
 
-#[tokio::test]
-async fn desktop_notifications_enforce_delivery_policy_and_trusted_server_actions() {
+async fn private_bus() -> (tempfile::TempDir, tokio::process::Child, String) {
+    let runtime = tempfile::tempdir().unwrap();
     let mut bus = Process::new("dbus-daemon")
         .args(["--session", "--nofork", "--print-address=1"])
+        .env("XDG_RUNTIME_DIR", runtime.path())
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::null())
         .kill_on_drop(true)
@@ -183,9 +219,19 @@ async fn desktop_notifications_enforce_delivery_policy_and_trusted_server_action
         .read_line(&mut address)
         .await
         .unwrap();
-    let address = address.trim();
-    let (posted, mut messages) = mpsc::channel(4);
-    let (closed, mut closed_ids) = mpsc::channel(4);
+    (runtime, bus, address.trim().to_owned())
+}
+
+async fn notification_server(
+    address: &str,
+    capabilities: &[&str],
+) -> (
+    zbus::Connection,
+    mpsc::Receiver<Posted>,
+    mpsc::Receiver<u32>,
+) {
+    let (posted, messages) = mpsc::channel(4);
+    let (closed, closed_ids) = mpsc::channel(4);
     let server = zbus::connection::Builder::address(address)
         .unwrap()
         .name(SERVICE)
@@ -196,15 +242,21 @@ async fn desktop_notifications_enforce_delivery_policy_and_trusted_server_action
                 next_id: std::sync::atomic::AtomicU32::new(42),
                 posted,
                 closed,
-                capabilities: vec!["body".into(), "actions".into(), "inline-reply".into()],
+                capabilities: capabilities
+                    .iter()
+                    .map(|value| (*value).to_owned())
+                    .collect(),
             },
         )
         .unwrap()
         .build()
         .await
         .unwrap();
+    (server, messages, closed_ids)
+}
+
+async fn ready_client(address: &str) -> Arc<Client> {
     let client = Client::with_address(Some(address.to_owned())).unwrap();
-    let mut queue = std::collections::VecDeque::new();
     tokio::time::timeout(Duration::from_secs(3), async {
         loop {
             client.drain();
@@ -216,18 +268,38 @@ async fn desktop_notifications_enforce_delivery_policy_and_trusted_server_action
     })
     .await
     .unwrap();
+    client
+}
+
+#[tokio::test]
+async fn desktop_notifications_enforce_delivery_policy_and_trusted_server_actions() {
+    let (_runtime, mut bus, address) = private_bus().await;
+    let (server, mut messages, mut closed_ids) =
+        notification_server(&address, &["body", "actions", "inline-reply"]).await;
+    let client = ready_client(&address).await;
+    let mut queue = std::collections::VecDeque::new();
+    let locale = crate::platform::localization::localizer();
     let ticket = Uuid::new_v4();
-    assert!(client.post(Notice {
+    assert!(locale.scope(|| client.post(Notice {
         ticket,
         room: "room".into(),
         title: "Public fixture".into(),
         body: "hello".into(),
         reply: true
-    }));
-    let (id, replaces, actions) = received(&mut messages).await;
+    })));
+    let Posted {
+        id,
+        replaces,
+        actions,
+        ..
+    } = received(&mut messages).await;
     assert_eq!(replaces, 0);
     assert!(actions.iter().any(|value| value == "inline-reply"));
-    assert!(actions.iter().any(|value| value == "Mark as read"));
+    assert!(
+        actions
+            .iter()
+            .any(|value| value == &locale.text("messages-notification-mark-read"))
+    );
     assert!(
         matches!(next(&client, &mut queue).await, Some(Event::Posted(value, 1)) if value == ticket)
     );
@@ -239,7 +311,12 @@ async fn desktop_notifications_enforce_delivery_policy_and_trusted_server_action
         body: "new".into(),
         reply: true
     }));
-    let (replacement_id, replaces, replacement_actions) = received(&mut messages).await;
+    let Posted {
+        id: replacement_id,
+        replaces,
+        actions: replacement_actions,
+        ..
+    } = received(&mut messages).await;
     assert_eq!((replacement_id, replaces), (42, 42));
     assert!(
         matches!(next(&client, &mut queue).await, Some(Event::Posted(value,1)) if value == replacement)
@@ -254,7 +331,7 @@ async fn desktop_notifications_enforce_delivery_policy_and_trusted_server_action
         )
         .await
         .unwrap();
-    let impostor = zbus::connection::Builder::address(address)
+    let impostor = zbus::connection::Builder::address(address.as_str())
         .unwrap()
         .build()
         .await
@@ -315,13 +392,42 @@ async fn desktop_notifications_enforce_delivery_policy_and_trusted_server_action
     );
     client.close(1);
     assert_eq!(received(&mut closed_ids).await, 42);
-    assert!(client.post_test());
-    let (_, _, test_actions) = received(&mut messages).await;
-    assert!(test_actions.is_empty());
+    assert!(locale.scope(|| client.post_test()));
+    let test = received(&mut messages).await;
+    assert_eq!(test.actions, ["default", ""]);
+    assert_eq!(
+        test.summary,
+        locale.text("messages-notification-test-title")
+    );
     assert!(matches!(
         next(&client, &mut queue).await,
         Some(Event::TestPosted)
     ));
+    let (mut app, _) = crate::app::App::new();
+    let selected = app.selected.clone();
+    app.notifications = Some(client.clone());
+    server
+        .emit_signal(
+            None::<&str>,
+            PATH,
+            SERVICE,
+            "ActionInvoked",
+            &(test.id, "default"),
+        )
+        .await
+        .unwrap();
+    tokio::time::timeout(Duration::from_secs(3), async {
+        while app.dialog != Some(crate::app::Dialog::Settings) {
+            let _ = app.update(crate::app::Message::NotificationWake);
+            tokio::time::sleep(Duration::from_millis(5)).await;
+        }
+    })
+    .await
+    .unwrap();
+    assert_eq!(app.settings_page, "notifications");
+    assert!(app.settings_drilled_in);
+    assert_eq!(app.selected, selected);
+    assert!(app.notification_bindings.is_empty());
     app_history_and_foreground_are_quiet(client.clone(), &mut messages, &mut closed_ids).await;
     server.release_name(SERVICE).await.unwrap();
     assert!(matches!(
@@ -330,5 +436,32 @@ async fn desktop_notifications_enforce_delivery_policy_and_trusted_server_action
             .unwrap(),
         Some(Event::Unavailable)
     ));
+    bus.kill().await.unwrap();
+}
+
+#[tokio::test]
+async fn test_notification_still_posts_when_actions_are_unavailable() {
+    let (_runtime, mut bus, address) = private_bus().await;
+    let (_server, mut messages, _closed_ids) = notification_server(&address, &["body"]).await;
+    let client = ready_client(&address).await;
+    let locale = crate::platform::localization::localizer();
+    assert!(locale.scope(|| client.post_test()));
+    let event = tokio::time::timeout(Duration::from_secs(3), async {
+        loop {
+            if let Some(event) = locale.scope(|| client.drain()).into_iter().next() {
+                break event;
+            }
+            tokio::time::sleep(Duration::from_millis(5)).await;
+        }
+    })
+    .await
+    .unwrap();
+    assert!(matches!(event, Event::TestPosted));
+    let test = received(&mut messages).await;
+    assert!(test.actions.is_empty());
+    assert_eq!(
+        test.body,
+        locale.text("messages-notification-test-body-passive")
+    );
     bus.kill().await.unwrap();
 }
