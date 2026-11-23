@@ -2,8 +2,8 @@
 
 ## 0.1.1
 
-- Identify the sample workspace on first launch and provide a shortcut to connect an account.
-- Update enzUI and its paired iced fork for nonblocking Wayland presentation discovery.
+- Messages is available on enzim Apps for Signal, Matrix, and WhatsApp accounts.
+- On first launch, the sample conversations are clearly marked and you can go straight to account setup.
 
 ## 0.1.0 — initial source preview
 
