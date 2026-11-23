@@ -21,6 +21,12 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="0.1.1" date="2026-11-23">
+      <description>
+        <p>Identify the sample workspace on first launch and provide a shortcut to connect an account.</p>
+        <p>Update enzUI and its paired iced fork for nonblocking Wayland presentation discovery.</p>
+      </description>
+    </release>
     <release version="0.1.0" date="2026-11-20">
       <description>
         <p>Add Flatpak packaging for enzim Apps.</p>

@@ -44,8 +44,8 @@
         },
         {
           "type": "archive",
-          "url": "https://github.com/enz1m/messages/releases/download/v0.1.0/messages-cargo-vendor-0.1.0.tar.xz",
-          "sha256": "598d59f39584efc5850e2e511d47a6a2605d8560073e7c9f79ca0482b1eb684c",
+          "url": "https://github.com/enz1m/messages/releases/download/v0.1.1/messages-cargo-vendor-0.1.1.tar.xz",
+          "sha256": "70d5a86e018c5f828faba20f765d24da5546b598f9232a74c1f3c76473c947e2",
           "strip-components": 1
         },
         {
