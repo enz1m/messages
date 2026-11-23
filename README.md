@@ -56,7 +56,7 @@ cargo build --locked
 cargo run --locked --bin enz-messages
 ```
 
-Dependencies pin public [enzUI Alpha 0.2](https://github.com/enz1m/enzui/releases/tag/v0.2.0-alpha.1)
+Dependencies pin public [enzUI source](https://github.com/enz1m/enzui)
 and its public foundation forks. No sibling checkout or submodule is required.
 Wayland is the default; enable `--features x11` for X11. Use
 `cargo build --release --locked` for an optimized desktop binary.

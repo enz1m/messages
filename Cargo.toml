@@ -35,19 +35,19 @@ serde_json.workspace = true
 tokio.workspace = true
 chrono.workspace = true
 uuid.workspace = true
-iced = { git = "https://github.com/enz1m/enzim-iced.git", rev = "e36b07b591661fdb666088fc943cc0b927a2367b", features = ["wgpu", "tiny-skia", "crisp", "web-colors", "thread-pool", "linux-theme-detection", "wayland", "wayland-dlopen", "wayland-decorations", "canvas", "svg", "a11y", "tokio"], default-features = false }
-enzui-iced-core = { package = "enzui-core", features = ["accesskit", "notification-freedesktop"], git = "https://github.com/enz1m/enzui.git", tag = "v0.3.0-alpha.1" }
-enzui-iced-theme = { package = "enzui-theme", git = "https://github.com/enz1m/enzui.git", tag = "v0.3.0-alpha.1" }
-enzui-iced-widgets = { package = "enzui-widgets", features = ["portal-dbus", "application-dbus", "emoji-picker"], git = "https://github.com/enz1m/enzui.git", tag = "v0.3.0-alpha.1" }
-enzui-iced-resources = { package = "enzui-resources", default-features = false, features = ["heif", "first-frame-previews"], git = "https://github.com/enz1m/enzui.git", tag = "v0.3.0-alpha.1" }
-enzui-services = { features = ["secret-service"], git = "https://github.com/enz1m/enzui.git", tag = "v0.3.0-alpha.1" }
-enzui-wayland = { git = "https://github.com/enz1m/enzui.git", tag = "v0.3.0-alpha.1" }
-enzui-parent-lease = { git = "https://github.com/enz1m/enzui.git", tag = "v0.3.0-alpha.1" }
+iced = { git = "https://github.com/enz1m/enzim-iced.git", rev = "22ea94fc775a3de8d1c1a1905b51d09b236e4c3b", features = ["wgpu", "tiny-skia", "crisp", "web-colors", "thread-pool", "linux-theme-detection", "wayland", "wayland-dlopen", "wayland-decorations", "canvas", "svg", "a11y", "tokio"], default-features = false }
+enzui-iced-core = { package = "enzui-core", features = ["accesskit", "notification-freedesktop"], git = "https://github.com/enz1m/enzui.git", rev = "27d8e8bb1951713ff3c45d6b5a7cb4e2e782c610" }
+enzui-iced-theme = { package = "enzui-theme", git = "https://github.com/enz1m/enzui.git", rev = "27d8e8bb1951713ff3c45d6b5a7cb4e2e782c610" }
+enzui-iced-widgets = { package = "enzui-widgets", features = ["portal-dbus", "application-dbus", "emoji-picker"], git = "https://github.com/enz1m/enzui.git", rev = "27d8e8bb1951713ff3c45d6b5a7cb4e2e782c610" }
+enzui-iced-resources = { package = "enzui-resources", default-features = false, features = ["heif", "first-frame-previews"], git = "https://github.com/enz1m/enzui.git", rev = "27d8e8bb1951713ff3c45d6b5a7cb4e2e782c610" }
+enzui-services = { features = ["secret-service"], git = "https://github.com/enz1m/enzui.git", rev = "27d8e8bb1951713ff3c45d6b5a7cb4e2e782c610" }
+enzui-wayland = { git = "https://github.com/enz1m/enzui.git", rev = "27d8e8bb1951713ff3c45d6b5a7cb4e2e782c610" }
+enzui-parent-lease = { git = "https://github.com/enz1m/enzui.git", rev = "27d8e8bb1951713ff3c45d6b5a7cb4e2e782c610" }
 
 [dev-dependencies]
 zbus = { version = "5.18", default-features = false, features = ["tokio"] }
 tempfile = "3"
-iced_runtime = { git = "https://github.com/enz1m/enzim-iced.git", rev = "e36b07b591661fdb666088fc943cc0b927a2367b" }
+iced_runtime = { git = "https://github.com/enz1m/enzim-iced.git", rev = "22ea94fc775a3de8d1c1a1905b51d09b236e4c3b" }
 messages-test-server = { path = "crates/messages-test-server" }
 
 [profile.dev]
