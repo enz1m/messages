@@ -154,7 +154,7 @@ pub(super) fn conversation_list(
                 .into()
         })
         .into_element();
-    enzui_iced_widgets::sidebar_content::enz_sidebar_content()
+    let mut content = enzui_iced_widgets::sidebar_content::enz_sidebar_content()
         .spacing_scale(app.themes.theme().spacing)
         .padding_left(enzui_iced_theme::SpaceToken::Xs)
         .padding_right(enzui_iced_theme::SpaceToken::Xs)
@@ -183,7 +183,18 @@ pub(super) fn conversation_list(
                 app.themes.theme().spacing.space5,
                 app.themes.theme().spacing.space4,
             ]),
-        )
+        );
+    if show_sidebar_sample_banner(app, compact) {
+        content = content.push(
+            container(sample_workspace_banner()).padding(
+                iced::Padding::ZERO
+                    .left(app.themes.theme().spacing.space4)
+                    .right(app.themes.theme().spacing.space4)
+                    .bottom(app.themes.theme().spacing.space2),
+            ),
+        );
+    }
+    content
         .push(
             container(list)
                 .padding([

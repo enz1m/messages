@@ -368,6 +368,26 @@ fn hint<'a>(text: impl Into<String>) -> Element<'a, Message> {
         .into_element()
 }
 
+pub(super) fn sample_workspace_banner<'a>() -> Element<'a, Message> {
+    enzui_iced_widgets::banner::enz_banner(text("messages-sample-title"))
+        .body(text("messages-sample-body"))
+        .tone(enzui_iced_widgets::banner::BannerTone::Info)
+        .action_text(text("messages-connect-account"))
+        .action_emphasis(enzui_iced_widgets::banner::BannerActionEmphasis::Suggested)
+        .on_action(Message::Open(Dialog::ConnectAccount))
+        .dismissible(false)
+        .id("messages-sample-workspace")
+        .into_element()
+}
+
+pub(crate) fn has_conversation_banner(app: &App, room: &messages_core::Conversation) -> bool {
+    app.demo || app.locked_history(room)
+}
+
+pub(crate) fn show_sidebar_sample_banner(app: &App, compact: bool) -> bool {
+    compact && app.demo
+}
+
 // The bottom-right corner: a warning stays as a notice until it is closed;
 // transient progress is a toast that expires.
 fn corner(app: &App) -> Option<Element<'_, Message>> {

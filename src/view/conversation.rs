@@ -32,6 +32,24 @@ pub(super) fn pane<'a>(
     };
     let transcript = super::transcript::view(app, room, compact, geometry);
     let mut body = column![].height(Length::Fill).width(Length::Fill);
+    let mut top_banner_placed = false;
+    let side_padding = if compact { 16.0 } else { 24.0 };
+    if app.demo {
+        body = body.push(
+            container(sample_workspace_banner()).padding(
+                iced::Padding::ZERO
+                    .top(if app.search_hit.is_some() {
+                        8.0
+                    } else {
+                        geometry.content_inset[0] + 8.0
+                    })
+                    .left(side_padding)
+                    .right(side_padding)
+                    .bottom(8.0),
+            ),
+        );
+        top_banner_placed = true;
+    }
     if app.locked_history(room) {
         let mut notice = enzui_iced_widgets::banner::enz_banner("Unlock encrypted history")
             .body("Restore your encryption keys to load unavailable history. Messages this device can read appear below.")
@@ -52,13 +70,15 @@ pub(super) fn pane<'a>(
         body = body.push(
             container(notice.into_element()).padding(
                 iced::Padding::ZERO
-                    .top(if app.search_hit.is_some() {
+                    .top(if top_banner_placed {
+                        0.0
+                    } else if app.search_hit.is_some() {
                         8.0
                     } else {
                         geometry.content_inset[0] + 8.0
                     })
-                    .left(if compact { 16.0 } else { 24.0 })
-                    .right(if compact { 16.0 } else { 24.0 })
+                    .left(side_padding)
+                    .right(side_padding)
                     .bottom(8.0),
             ),
         );

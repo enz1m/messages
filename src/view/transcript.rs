@@ -47,8 +47,9 @@ pub(crate) fn view<'a>(
     geometry: &enzui_iced_widgets::app_shell::ShellGeometry,
 ) -> Element<'a, Message> {
     let gap = app.themes.theme().spacing.space2;
+    let has_banner = has_conversation_banner(app, room);
     let mut rail = geometry.scrollbar_safe_area();
-    rail.top = if app.search_hit.is_some() || app.locked_history(room) {
+    rail.top = if app.search_hit.is_some() || has_banner {
         gap
     } else {
         rail.top + gap
@@ -58,7 +59,7 @@ pub(crate) fn view<'a>(
         app,
         room,
         compact,
-        if app.locked_history(room) {
+        if has_banner {
             gap.max(1.0)
         } else {
             geometry.content_inset[0]

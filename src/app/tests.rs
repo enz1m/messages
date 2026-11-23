@@ -17,6 +17,7 @@ mod history;
 mod login;
 mod native_admission;
 mod requests;
+mod sample_workspace;
 mod services;
 mod shutdown;
 mod virtualization;
