@@ -7,7 +7,6 @@ use matrix_sdk::{
 use serde_json::{Value, json};
 use std::{
     collections::HashSet,
-    path::PathBuf,
     sync::{
         Arc, Mutex as FileMutex, Weak,
         atomic::{AtomicBool, Ordering},
@@ -57,7 +56,7 @@ impl Browser {
 
 struct Completion {
     client: Client,
-    directory: PathBuf,
+    session_file: auth::SessionFile,
     file_lock: Arc<FileMutex<()>>,
     writes: Arc<Mutex<()>>,
     committed: Arc<AtomicBool>,
@@ -175,7 +174,7 @@ impl Matrix {
         };
         let completion = Completion {
             client: self.client.clone(),
-            directory: self.directory.clone(),
+            session_file: self.session_file.clone(),
             file_lock: self.file_lock.clone(),
             writes: self.writes.clone(),
             committed: self.committed.clone(),
@@ -325,11 +324,7 @@ async fn complete(
             "Sign-in retired"
         );
         drop(again);
-        auth::save_session(
-            &context.client,
-            &context.directory.join("session.json"),
-            &context.file_lock,
-        )?;
+        auth::save_session(&context.client, &context.session_file, &context.file_lock)?;
         context.committed.store(true, Ordering::Release);
         context.ready.notify_one();
         let _ = callback::respond(&mut stream, true).await;

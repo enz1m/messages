@@ -174,8 +174,16 @@ impl App {
                 }
                 continue;
             }
-            if config.managed.is_some() {
-                tasks.push(self.restore_service(config));
+            if let Some(managed) = &config.managed {
+                // Matrix waits for the keyring that holds its store key.
+                if credentials.is_some()
+                    || !matches!(
+                        managed,
+                        messages_protocols::ManagedConnection::Matrix { .. }
+                    )
+                {
+                    tasks.push(self.restore_service(config));
+                }
                 continue;
             }
             let Some(credentials) = credentials.as_ref() else {

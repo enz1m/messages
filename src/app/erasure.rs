@@ -72,13 +72,15 @@ impl App {
             self.erasing.insert(account);
             let host = self.erase_hosts.remove(&account);
             let root = root.clone();
+            let credentials = self.credentials.clone();
             self.track_job(
                 Kind::AccountErase,
                 async move {
                     if let Some(host) = host {
                         host.stop().await;
                     }
-                    crate::platform::services::erase_account_storage(root, account).await
+                    crate::platform::services::erase_account_storage(root, account, credentials)
+                        .await
                 },
                 move |result| Message::AccountErased(account, false, result),
             )
@@ -109,7 +111,11 @@ impl App {
         Task::batch(pending.into_iter().map(|account| {
             self.track_job(
                 Kind::AccountErase,
-                crate::platform::services::erase_account_storage(root.clone(), account),
+                crate::platform::services::erase_account_storage(
+                    root.clone(),
+                    account,
+                    self.credentials.clone(),
+                ),
                 move |result| Message::AccountErased(account, true, result),
             )
         }))

@@ -93,7 +93,7 @@ State lives in `$XDG_DATA_HOME/enz-messages` (normally
 development and screenshots. Real and sample snapshots remain separate.
 Credentials use Secret Service or private SDK storage; snapshots contain no
 passwords or tokens. An unavailable keyring permits session-only connections
-where possible. Account removal retires pending work and erases that account's
+where possible; managed Matrix accounts need it for their store key. Account removal retires pending work and erases that account's
 private helper state and staged attachments after the removal commits. Files
 saved elsewhere are retained.
 

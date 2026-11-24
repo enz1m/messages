@@ -36,6 +36,7 @@ impl App {
             .parent()
             .unwrap_or(std::path::Path::new("."))
             .to_owned();
+        let credentials = self.credentials.clone();
         self.notice = None;
         let (task, handle) = self
             .track_job(
@@ -44,7 +45,7 @@ impl App {
                     if let Some(old) = old {
                         old.stop().await;
                     }
-                    crate::platform::services::prepare(config, root).await
+                    crate::platform::services::prepare(config, root, credentials).await
                 },
                 move |result| Message::ServicePrepared(generation, result),
             )
@@ -91,7 +92,7 @@ impl App {
             .to_owned();
         self.track_job(
             super::jobs::Kind::AccountSetup,
-            crate::platform::services::prepare(config, root),
+            crate::platform::services::prepare(config, root, self.credentials.clone()),
             move |result| Message::ServiceRestored(session, result),
         )
     }

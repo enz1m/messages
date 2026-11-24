@@ -5,10 +5,23 @@ async fn main() -> anyhow::Result<()> {
     let directory = messages_bridge::host::private_directory("matrix").await?;
     let token = messages_bridge::host::token(&directory).await?;
     let client_uri = std::env::var("MESSAGES_MATRIX_CLIENT_URI").ok();
-    let backend = messages_bridge::matrix::Matrix::prepare_with_client_uri(
+    let store_key = if std::env::var_os("MESSAGES_MATRIX_KEY_STDIN").is_some() {
+        use std::io::Read;
+        let mut key = String::new();
+        std::io::stdin().take(4097).read_to_string(&mut key)?;
+        anyhow::ensure!(
+            (32..=4096).contains(&key.len()),
+            "The Matrix store key is invalid"
+        );
+        Some(key)
+    } else {
+        None
+    };
+    let backend = messages_bridge::matrix::Matrix::prepare_with_store_key(
         &directory,
         &homeserver,
         client_uri.as_deref(),
+        store_key.as_deref(),
     )
     .await?;
     let (shutdown, receiver) = tokio::sync::watch::channel(false);

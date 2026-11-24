@@ -28,6 +28,7 @@ pub struct Matrix {
     client_uri: Option<String>,
     cache: SharedCache,
     directory: PathBuf,
+    session_file: auth::SessionFile,
     ready: Arc<Notify>,
     decryption_needed: Notify,
     writes: Arc<Mutex<()>>,
@@ -70,11 +71,31 @@ impl Matrix {
         homeserver: &str,
         client_uri: Option<&str>,
     ) -> anyhow::Result<Arc<Self>> {
+        Self::prepare_with_store_key(directory, homeserver, client_uri, None).await
+    }
+
+    /// Prepare an account whose store key is held outside its directory.
+    ///
+    /// With `store_key`, the SDK store is encrypted with it and the session is
+    /// sealed with a key derived from it; a plain `session.json` is sealed and
+    /// removed once the store opens. Without it, the key is kept in a private
+    /// `database-key` file.
+    pub async fn prepare_with_store_key(
+        directory: &Path,
+        homeserver: &str,
+        client_uri: Option<&str>,
+        store_key: Option<&str>,
+    ) -> anyhow::Result<Arc<Self>> {
         let client_uri = client_uri
             .or(option_env!("MESSAGES_MATRIX_CLIENT_URI"))
             .map(str::to_owned);
+        let session_file = auth::SessionFile::new(directory, store_key);
         let key_path = directory.join("database-key");
-        let key = match tokio::fs::read_to_string(&key_path).await {
+        let key = match store_key {
+            Some(key) => Ok(key.to_owned()),
+            None => tokio::fs::read_to_string(&key_path).await,
+        };
+        let key = match key {
             Ok(key) => key,
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
                 let key = format!(
@@ -98,9 +119,12 @@ impl Matrix {
             })
             .build()
             .await?;
+        // The store opened with the key, so a plain session can be sealed under it.
+        let file = session_file.clone();
+        tokio::task::spawn_blocking(move || file.migrate()).await??;
         let file_lock = Arc::new(std::sync::Mutex::new(()));
-        auth::session_callbacks(&client, directory.join("session.json"), file_lock.clone())?;
-        match auth::load_session(&directory.join("session.json")) {
+        auth::session_callbacks(&client, session_file.clone(), file_lock.clone())?;
+        match session_file.load() {
             Ok(session) => client.restore_session(session).await?,
             Err(error)
                 if error
@@ -116,6 +140,7 @@ impl Matrix {
             client_uri,
             cache: Cache::open(directory.join("messages.json")).await?,
             directory: directory.into(),
+            session_file,
             ready: Arc::new(Notify::new()),
             decryption_needed: Notify::new(),
             writes: Arc::new(Mutex::new(())),
@@ -362,11 +387,7 @@ impl Backend for Matrix {
             .login_username(user, password)
             .initial_device_display_name("enzUI Messages")
             .await?;
-        auth::save_session(
-            &self.client,
-            &self.directory.join("session.json"),
-            &self.file_lock,
-        )?;
+        auth::save_session(&self.client, &self.session_file, &self.file_lock)?;
         self.committed
             .store(true, std::sync::atomic::Ordering::Release);
         self.ready.notify_one();

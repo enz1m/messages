@@ -13,7 +13,7 @@ publish = false
 [features]
 call-fixtures = ["whatsapp", "whatsapp-rust/test-support"]
 whatsapp = ["dep:reqwest", "dep:whatsapp-rust", "whatsapp-rust/voip", "dep:async-channel"]
-matrix = ["dep:matrix-sdk", "dep:matrix-sdk-crypto", "dep:futures-util"]
+matrix = ["dep:matrix-sdk", "dep:matrix-sdk-crypto", "dep:futures-util", "dep:chacha20poly1305", "dep:sha2"]
 
 [dependencies]
 messages-media = { path = "../messages-media" }
@@ -34,13 +34,14 @@ mime = "0.3"
 url = "2"
 whatsapp-rust = { git = "https://github.com/oxidezap/whatsapp-rust", rev = "aa0612ee31f9e592d72d44a7e0944b353096a926", optional = true }
 matrix-sdk-crypto = { version = "=0.19.1", optional = true }
+chacha20poly1305 = { version = "0.11", optional = true }
+sha2 = { version = "0.10", optional = true }
 matrix-sdk = { version = "=0.19.1", default-features = false, features = ["e2e-encryption", "sqlite", "bundled-sqlite", "rustls-aws-lc-rs"], optional = true }
 
 reqwest = { version = "0.12", optional = true, default-features = false, features = ["json", "rustls-tls"] }
 
 [dev-dependencies]
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
-
 sha2 = "0.10"
 tempfile = "3"
 percent-encoding = "2"

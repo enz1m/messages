@@ -10,6 +10,8 @@ use messages_protocols::{
 };
 use tokio::process::{Child, Command};
 
+use super::credentials::{CredentialIssue, Credentials};
+
 const SOCKET_NAME: &str = "helper.sock";
 
 pub struct Host {
@@ -69,17 +71,22 @@ pub struct Prepared {
     pub host: Arc<Host>,
 }
 
-pub async fn prepare(config: ConnectionConfig, root: PathBuf) -> Result<Prepared, String> {
+pub async fn prepare(
+    config: ConnectionConfig,
+    root: PathBuf,
+    credentials: Option<Arc<Credentials>>,
+) -> Result<Prepared, String> {
     let executable = std::env::current_exe().map_err(|_| "Could not locate the application.")?;
     let bin_directory = std::env::var_os("MESSAGES_HELPER_DIR")
         .map(PathBuf::from)
         .unwrap_or_else(|| executable.parent().unwrap_or(Path::new(".")).to_owned());
-    prepare_with_programs(config, root, bin_directory, None).await
+    prepare_with_programs(config, root, credentials, bin_directory, None).await
 }
 
 async fn prepare_with_programs(
     mut config: ConnectionConfig,
     root: PathBuf,
+    credentials: Option<Arc<Credentials>>,
     bin_directory: PathBuf,
     signal_program: Option<PathBuf>,
 ) -> Result<Prepared, String> {
@@ -101,6 +108,15 @@ async fn prepare_with_programs(
     }
     let endpoint = LocalSocket::endpoint(&socket_path)
         .ok_or("The service storage path is not valid Unicode.")?;
+    let store_key = match (&service, credentials) {
+        (ManagedConnection::Matrix { .. }, Some(credentials)) => {
+            Some(matrix_store_key(&credentials, config.account, &directory).await?)
+        }
+        (ManagedConnection::Matrix { .. }, None) => {
+            return Err("The system keyring is not ready yet. Try connecting again.".into());
+        }
+        _ => None,
+    };
     let mut command = match &service {
         ManagedConnection::Signal => {
             let path = signal_program.unwrap_or_else(|| bin_directory.join("signal-cli"));
@@ -140,7 +156,9 @@ async fn prepare_with_programs(
             if let ManagedConnection::Matrix { homeserver } = &service {
                 messages_protocols::http::Http::new(homeserver, None)
                     .map_err(|error| error.to_string())?;
-                command.env("MATRIX_HOMESERVER", homeserver);
+                command
+                    .env("MATRIX_HOMESERVER", homeserver)
+                    .env("MESSAGES_MATRIX_KEY_STDIN", "1");
             }
             command
         }
@@ -148,7 +166,11 @@ async fn prepare_with_programs(
     // Helpers bind a relative name so deep state paths fit the Unix socket path limit.
     let mut child = command
         .current_dir(&directory)
-        .stdin(Stdio::null())
+        .stdin(if store_key.is_some() {
+            Stdio::piped()
+        } else {
+            Stdio::null()
+        })
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .kill_on_drop(true)
@@ -161,6 +183,13 @@ async fn prepare_with_programs(
                 "Could not start the native service helper.".to_owned()
             }
         })?;
+    if let (Some(key), Some(mut stdin)) = (store_key, child.stdin.take()) {
+        use tokio::io::AsyncWriteExt;
+        stdin
+            .write_all(key.expose().as_bytes())
+            .await
+            .map_err(|_| "Could not start the native service helper.")?;
+    }
     let pid = child.id().ok_or("Could not check the service process.")?;
     config.endpoint = endpoint;
     let deadline = tokio::time::Instant::now() + Duration::from_secs(40);
@@ -217,8 +246,26 @@ pub fn account_directories(root: &Path, account: uuid::Uuid) -> [PathBuf; 2] {
 /// Callers hold the stop/settlement barrier: the account's helper is stopped
 /// and no setup or file work for it can still be writing. A directory that is
 /// already gone counts as erased; a symbolic link in its place is removed
-/// without following it. Success means both names are verified absent.
-pub async fn erase_account_storage(root: PathBuf, account: uuid::Uuid) -> Result<(), String> {
+/// without following it. Success means both names are verified absent. A
+/// Matrix store key is then deleted from the keyring when one is reachable.
+pub async fn erase_account_storage(
+    root: PathBuf,
+    account: uuid::Uuid,
+    credentials: Option<Arc<Credentials>>,
+) -> Result<(), String> {
+    let [services, _] = account_directories(&root, account);
+    let matrix_store = tokio::fs::symlink_metadata(services.join("sdk"))
+        .await
+        .is_ok();
+    erase_account_files(root, account).await?;
+    if matrix_store && let Some(credentials) = credentials {
+        // The key protects nothing once the store files are gone.
+        let _ = credentials.delete_matrix_store_key(account).await;
+    }
+    Ok(())
+}
+
+async fn erase_account_files(root: PathBuf, account: uuid::Uuid) -> Result<(), String> {
     tokio::task::spawn_blocking(move || {
         for directory in account_directories(&root, account) {
             match std::fs::symlink_metadata(&directory) {
@@ -245,6 +292,74 @@ pub async fn erase_account_storage(root: PathBuf, account: uuid::Uuid) -> Result
     })
     .await
     .map_err(|_| "Removed account data could not be erased.".to_owned())?
+}
+
+/// The key of a managed Matrix account's store, kept in the system keyring.
+///
+/// A legacy plaintext `database-key` file is moved into the keyring and removed
+/// only after the keyring returns the same key.
+async fn matrix_store_key(
+    credentials: &Credentials,
+    account: uuid::Uuid,
+    directory: &Path,
+) -> Result<Secret, String> {
+    let keyring = |issue: CredentialIssue| {
+        format!(
+            "{} Matrix keeps its encryption key in the system keyring; unlock it and connect again.",
+            issue.summary
+        )
+    };
+    let legacy = directory.join("database-key");
+    match tokio::fs::read_to_string(&legacy).await {
+        Ok(key) => {
+            let key = Secret::from(key);
+            credentials
+                .set_matrix_store_key(account, &key)
+                .await
+                .map_err(keyring)?;
+            match credentials
+                .matrix_store_key(account)
+                .await
+                .map_err(keyring)?
+            {
+                Some(stored) if stored.expose() == key.expose() => {}
+                _ => return Err("The system keyring did not keep the Matrix key.".into()),
+            }
+            tokio::fs::remove_file(&legacy)
+                .await
+                .map_err(|_| "Could not update private service storage.")?;
+            Ok(key)
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+            if let Some(key) = credentials
+                .matrix_store_key(account)
+                .await
+                .map_err(keyring)?
+            {
+                return Ok(key);
+            }
+            if tokio::fs::symlink_metadata(directory.join("sdk"))
+                .await
+                .is_ok()
+            {
+                return Err(
+                    "The Matrix encryption key is missing from the system keyring. Remove and add this account again."
+                        .into(),
+                );
+            }
+            let key = Secret::from(format!(
+                "{}{}",
+                uuid::Uuid::new_v4().simple(),
+                uuid::Uuid::new_v4().simple()
+            ));
+            credentials
+                .set_matrix_store_key(account, &key)
+                .await
+                .map_err(keyring)?;
+            Ok(key)
+        }
+        Err(_) => Err("Could not read private service storage.".into()),
+    }
 }
 
 /// Whether the socket at `path` accepts connections and was bound by process `pid`.
@@ -319,6 +434,7 @@ while True:
         let prepared = prepare_with_programs(
             config,
             directory.path().to_owned(),
+            None,
             directory.path().to_owned(),
             Some(program),
         )
@@ -351,6 +467,44 @@ while True:
                 0o700
             );
         }
+    }
+
+    #[tokio::test]
+    async fn services_matrix_key_moves_into_the_keyring_only_when_it_is_kept() {
+        use enzui_services::credential_store::{
+            MemoryCredentialStore, UnlockCancelledCredentialStore,
+        };
+        let directory = tempfile::tempdir().unwrap();
+        let account = uuid::Uuid::new_v4();
+        let legacy = directory.path().join("database-key");
+        std::fs::write(&legacy, "legacy-store-key-0123456789abcdef").unwrap();
+
+        let locked = Credentials::with_store(Arc::new(UnlockCancelledCredentialStore));
+        assert!(
+            matrix_store_key(&locked, account, directory.path())
+                .await
+                .is_err()
+        );
+        assert!(legacy.exists());
+
+        let keyring = Credentials::with_store(Arc::new(MemoryCredentialStore::new()));
+        let key = matrix_store_key(&keyring, account, directory.path())
+            .await
+            .unwrap();
+        assert_eq!(key.expose(), "legacy-store-key-0123456789abcdef");
+        assert!(!legacy.exists());
+        let again = matrix_store_key(&keyring, account, directory.path())
+            .await
+            .unwrap();
+        assert_eq!(again.expose(), key.expose());
+
+        let other = uuid::Uuid::new_v4();
+        std::fs::create_dir(directory.path().join("sdk")).unwrap();
+        assert!(
+            matrix_store_key(&keyring, other, directory.path())
+                .await
+                .is_err()
+        );
     }
 
     #[tokio::test]

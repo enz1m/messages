@@ -17,8 +17,10 @@ combined feature set is for metadata collection, not a linked test/helper proces
 The desktop normally starts and stops these hosts on a Unix socket in the account's
 private directory (`MESSAGES_BRIDGE_SOCKET`). Manual endpoints default to loopback
 ports 8821 for WhatsApp and 8823 for Matrix. `MESSAGES_BRIDGE_STATE` selects private
-host storage and `MESSAGES_BRIDGE_TOKEN` supplies a local bearer token. Tokens,
-QR/session secrets and provider credentials must not be printed or committed.
+host storage and `MESSAGES_BRIDGE_TOKEN` supplies a local bearer token. With
+`MESSAGES_MATRIX_KEY_STDIN`, the Matrix host reads its store key from standard input,
+as the desktop does from the system keyring, and seals its session under that key.
+Tokens, QR/session secrets and provider credentials must not be printed or committed.
 
 `GET /v1/status` negotiates version, identity and capabilities. `GET /v1/chats`
 returns cached conversations and live read/typing/call state. Login, history,

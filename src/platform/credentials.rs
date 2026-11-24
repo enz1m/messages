@@ -39,6 +39,11 @@ impl CredentialIssue {
     }
 }
 
+/// The key that encrypts a managed Matrix account's SDK store and session.
+fn matrix_store_key(account: Uuid) -> CredentialKey {
+    CredentialKey::new("io.enz.Messages", account.to_string(), "matrix-store-key")
+}
+
 pub struct Credentials {
     store: Arc<dyn CredentialStore>,
     owner: Option<CredentialMutationOwner>,
@@ -96,6 +101,44 @@ impl Credentials {
             .await
         {
             CredentialOutcome::Stored => Ok(()),
+            outcome => Err(CredentialIssue::from_outcome(&outcome)),
+        }
+    }
+
+    pub async fn matrix_store_key(&self, account: Uuid) -> Result<Option<Token>, CredentialIssue> {
+        match self.store.get(matrix_store_key(account)).await {
+            CredentialOutcome::Retrieved(secret) => std::str::from_utf8(secret.expose_secret())
+                .map(|key| Some(key.to_owned().into()))
+                .map_err(|_| CredentialIssue {
+                    summary: "The saved credential is invalid.",
+                    silent: false,
+                }),
+            CredentialOutcome::NotFound => Ok(None),
+            outcome => Err(CredentialIssue::from_outcome(&outcome)),
+        }
+    }
+
+    pub async fn set_matrix_store_key(
+        &self,
+        account: Uuid,
+        key: &Token,
+    ) -> Result<(), CredentialIssue> {
+        match self
+            .store
+            .set(
+                matrix_store_key(account),
+                Secret::new(key.expose().as_bytes().to_vec()),
+            )
+            .await
+        {
+            CredentialOutcome::Stored => Ok(()),
+            outcome => Err(CredentialIssue::from_outcome(&outcome)),
+        }
+    }
+
+    pub async fn delete_matrix_store_key(&self, account: Uuid) -> Result<(), CredentialIssue> {
+        match self.store.delete(matrix_store_key(account)).await {
+            CredentialOutcome::Deleted | CredentialOutcome::NotFound => Ok(()),
             outcome => Err(CredentialIssue::from_outcome(&outcome)),
         }
     }
