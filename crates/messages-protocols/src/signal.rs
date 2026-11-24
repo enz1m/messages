@@ -1,5 +1,6 @@
-//! signal-cli HTTP JSON-RPC plus resumable server-sent events. Native Signal
-//! cryptography and linked-device sessions remain in signal-cli/libsignal.
+//! signal-cli JSON-RPC, over its daemon socket for managed accounts or HTTP with
+//! resumable server-sent events otherwise. Native Signal cryptography and
+//! linked-device sessions remain in signal-cli/libsignal.
 
 use std::time::Duration;
 
@@ -13,29 +14,78 @@ use reqwest::Method;
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use crate::{Adapter, AdapterError, ConnectionConfig, MessageAction, SyncBatch, http::Http};
+use crate::{
+    Adapter, AdapterError, ConnectionConfig, MessageAction, SyncBatch, http::Http,
+    local_socket::LocalSocket,
+};
+
+#[derive(Clone)]
+pub(crate) enum Transport {
+    Http(Http),
+    Socket(LocalSocket),
+}
+
+impl Transport {
+    /// The JSON-RPC response object carrying `id`; errors inside it are left to the caller.
+    pub(crate) async fn call(
+        &self,
+        method: &str,
+        params: Value,
+        id: &str,
+        limit: usize,
+        timeout: Duration,
+    ) -> Result<Value, AdapterError> {
+        let request = json!({"jsonrpc":"2.0","id":id,"method":method,"params":params});
+        match self {
+            Self::Socket(socket) => {
+                crate::signal_socket::call(socket, &request, id, limit, timeout).await
+            }
+            Self::Http(http) => {
+                let response = http
+                    .request(Method::POST, http.url(&["api", "v1", "rpc"])?)
+                    .timeout(timeout)
+                    .json(&request)
+                    .send()
+                    .await
+                    .map_err(|_| AdapterError::Network)?;
+                Http::decode_limited(response, limit).await
+            }
+        }
+    }
+}
+
+enum Events {
+    Sse(crate::sse::Connection),
+    Socket(Option<crate::signal_socket::Subscription>),
+}
 
 pub struct Signal {
     pub(crate) config: ConnectionConfig,
-    pub(crate) http: Http,
+    pub(crate) transport: Transport,
     pub(crate) login_gate: tokio::sync::Mutex<()>,
     pub(crate) auth: std::sync::Mutex<crate::signal_login::SignalAuth>,
-    events: tokio::sync::Mutex<crate::sse::Connection>,
+    events: tokio::sync::Mutex<Events>,
     pub(crate) identities: std::sync::Mutex<std::collections::HashMap<String, String>>,
 }
 
 impl Signal {
     pub fn new(config: ConnectionConfig, token: Option<String>) -> Result<Self, AdapterError> {
-        let http = Http::new(
-            &config.endpoint,
-            token.map(|token| format!("Bearer {token}")),
-        )?;
+        let (transport, events) = match LocalSocket::for_config(&config) {
+            Some(socket) => (Transport::Socket(socket?), Events::Socket(None)),
+            None => (
+                Transport::Http(Http::new(
+                    &config.endpoint,
+                    token.map(|token| format!("Bearer {token}")),
+                )?),
+                Events::Sse(crate::sse::Connection::default()),
+            ),
+        };
         Ok(Self {
             config,
-            http,
+            transport,
             auth: crate::signal_login::auth(),
             login_gate: tokio::sync::Mutex::new(()),
-            events: tokio::sync::Mutex::default(),
+            events: tokio::sync::Mutex::new(events),
             identities: std::sync::Mutex::default(),
         })
     }
@@ -204,11 +254,61 @@ impl Signal {
         cursor: Option<&str>,
         batch: &mut SyncBatch,
     ) -> Result<(), AdapterError> {
-        let mut connection = self.events.lock().await;
+        let mut events = self.events.lock().await;
+        let deadline = tokio::time::Instant::now() + Duration::from_millis(800);
+        match (&mut *events, &self.transport) {
+            (Events::Socket(subscription), Transport::Socket(socket)) => {
+                self.receive_socket(socket, subscription, deadline, batch)
+                    .await
+            }
+            (Events::Sse(connection), Transport::Http(http)) => {
+                self.receive_sse(http, connection, cursor, deadline, batch)
+                    .await
+            }
+            _ => Err(AdapterError::Network),
+        }
+    }
+
+    async fn receive_socket(
+        &self,
+        socket: &LocalSocket,
+        subscription: &mut Option<crate::signal_socket::Subscription>,
+        deadline: tokio::time::Instant,
+        batch: &mut SyncBatch,
+    ) -> Result<(), AdapterError> {
+        if subscription.is_none() {
+            *subscription =
+                Some(crate::signal_socket::Subscription::open(socket, &self.active_user()?).await?);
+        }
+        let stream = subscription
+            .as_mut()
+            .expect("subscription initialized above");
+        loop {
+            let value = match stream.next(deadline).await {
+                Ok(Some(value)) => value,
+                Ok(None) => return Ok(()),
+                Err(error) => {
+                    *subscription = None;
+                    return Err(error);
+                }
+            };
+            if value["method"] == "receive" {
+                self.receive_event(&value["params"]["result"], batch);
+            }
+        }
+    }
+
+    async fn receive_sse(
+        &self,
+        http: &Http,
+        connection: &mut crate::sse::Connection,
+        cursor: Option<&str>,
+        deadline: tokio::time::Instant,
+        batch: &mut SyncBatch,
+    ) -> Result<(), AdapterError> {
         if connection.response.is_none() {
-            let mut request = self
-                .http
-                .request(Method::GET, self.http.url(&["api", "v1", "events"])?)
+            let mut request = http
+                .request(Method::GET, http.url(&["api", "v1", "events"])?)
                 .header(reqwest::header::ACCEPT, "text/event-stream")
                 .timeout(Duration::from_secs(3600));
             // An absent header means live events only; zero requests the daemon's buffered backlog.
@@ -218,7 +318,6 @@ impl Signal {
             connection.response = Some(response);
             connection.decoder = crate::sse::Decoder::default();
         }
-        let deadline = tokio::time::Instant::now() + Duration::from_millis(800);
         loop {
             let response = connection
                 .response
@@ -249,16 +348,20 @@ impl Signal {
                 }
                 let value: Value = serde_json::from_str(&event.data)
                     .map_err(|_| AdapterError::InvalidData("invalid Signal event".into()))?;
-                self.receive_changes(&value, batch);
-                if let Some((key, message)) = self.receive(&value) {
-                    batch.messages.push((key, vec![message]));
-                }
+                self.receive_event(&value, batch);
                 if event.id.is_some() {
                     batch.cursor = event.id;
                 }
             }
         }
         Ok(())
+    }
+
+    fn receive_event(&self, value: &Value, batch: &mut SyncBatch) {
+        self.receive_changes(value, batch);
+        if let Some((key, message)) = self.receive(value) {
+            batch.messages.push((key, vec![message]));
+        }
     }
 }
 

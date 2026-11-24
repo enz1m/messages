@@ -5,8 +5,12 @@ use std::{
     time::Duration,
 };
 
-use messages_protocols::{ConnectionConfig, ManagedConnection, login::Secret};
+use messages_protocols::{
+    ConnectionConfig, ManagedConnection, local_socket::LocalSocket, login::Secret,
+};
 use tokio::process::{Child, Command};
+
+const SOCKET_NAME: &str = "helper.sock";
 
 pub struct Host {
     child: Mutex<Option<Child>>,
@@ -88,8 +92,15 @@ async fn prepare_with_programs(
     private_directory(&root.join("services")).await?;
     let directory = root.join("services").join(config.account.to_string());
     private_directory(&directory).await?;
-    let port = available_port().await?;
-    let endpoint = format!("http://127.0.0.1:{port}");
+    let socket_path = directory.join(SOCKET_NAME);
+    match tokio::fs::remove_file(&socket_path).await {
+        Err(error) if error.kind() != std::io::ErrorKind::NotFound => {
+            return Err("Could not prepare private service storage.".into());
+        }
+        _ => {}
+    }
+    let endpoint = LocalSocket::endpoint(&socket_path)
+        .ok_or("The service storage path is not valid Unicode.")?;
     let mut command = match &service {
         ManagedConnection::Signal => {
             let path = signal_program.unwrap_or_else(|| bin_directory.join("signal-cli"));
@@ -104,9 +115,10 @@ async fn prepare_with_programs(
                 .arg("--data-dir")
                 .arg(directory.join("signal"))
                 .arg("daemon")
-                .arg("--receive-mode=on-connection")
+                .arg("--receive-mode=manual")
                 .arg("--no-receive-stdout")
-                .arg(format!("--http=127.0.0.1:{port}"));
+                // signal-cli creates the parent of the socket path, so the name needs one.
+                .arg(format!("--socket=./{SOCKET_NAME}"));
             command
         }
         _ => {
@@ -124,7 +136,7 @@ async fn prepare_with_programs(
             let mut command = Command::new(path);
             command
                 .env("MESSAGES_BRIDGE_STATE", &directory)
-                .env("MESSAGES_BRIDGE_BIND", format!("127.0.0.1:{port}"));
+                .env("MESSAGES_BRIDGE_SOCKET", SOCKET_NAME);
             if let ManagedConnection::Matrix { homeserver } = &service {
                 messages_protocols::http::Http::new(homeserver, None)
                     .map_err(|error| error.to_string())?;
@@ -133,7 +145,9 @@ async fn prepare_with_programs(
             command
         }
     };
+    // Helpers bind a relative name so deep state paths fit the Unix socket path limit.
     let mut child = command
+        .current_dir(&directory)
         .stdin(Stdio::null())
         .stdout(Stdio::null())
         .stderr(Stdio::null())
@@ -147,6 +161,7 @@ async fn prepare_with_programs(
                 "Could not start the native service helper.".to_owned()
             }
         })?;
+    let pid = child.id().ok_or("Could not check the service process.")?;
     config.endpoint = endpoint;
     let deadline = tokio::time::Instant::now() + Duration::from_secs(40);
     let token = loop {
@@ -157,14 +172,11 @@ async fn prepare_with_programs(
         {
             return Err("The service helper exited before it was ready. Check its installation and account settings.".into());
         }
-        if matches!(service, ManagedConnection::Signal) {
-            if tokio::net::TcpStream::connect(format!("127.0.0.1:{port}"))
-                .await
-                .is_ok()
-            {
-                break None;
-            }
-        } else if let Ok(token) = tokio::fs::read_to_string(directory.join("access-token")).await
+        let serving = served_by(&socket_path, pid).await;
+        if serving && matches!(service, ManagedConnection::Signal) {
+            break None;
+        } else if serving
+            && let Ok(token) = tokio::fs::read_to_string(directory.join("access-token")).await
             && (16..=4096).contains(&token.len())
         {
             let bridge =
@@ -235,14 +247,18 @@ pub async fn erase_account_storage(root: PathBuf, account: uuid::Uuid) -> Result
     .map_err(|_| "Removed account data could not be erased.".to_owned())?
 }
 
-async fn available_port() -> Result<u16, String> {
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+/// Whether the socket at `path` accepts connections and was bound by process `pid`.
+async fn served_by(path: &Path, pid: u32) -> bool {
+    let Ok(socket) = LocalSocket::open(path) else {
+        return false;
+    };
+    socket
+        .connect()
         .await
-        .map_err(|_| "Could not allocate a local service port.")?;
-    listener
-        .local_addr()
-        .map(|address| address.port())
-        .map_err(|_| "Could not read the local service port.".into())
+        .ok()
+        .and_then(|stream| stream.peer_cred().ok())
+        .and_then(|credentials| credentials.pid())
+        .is_some_and(|peer| u32::try_from(peer) == Ok(pid))
 }
 
 async fn private_directory(directory: &Path) -> Result<(), String> {
@@ -258,6 +274,8 @@ async fn private_directory(directory: &Path) -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::os::unix::fs::PermissionsExt;
+    use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 
     #[tokio::test]
     async fn services_signal_starts_privately_and_stops_before_reopening_storage() {
@@ -277,23 +295,24 @@ mod tests {
         tokio::fs::write(
             &program,
             r#"#!/usr/bin/env python3
-import http.server, sys
-assert '--receive-mode=on-connection' in sys.argv
+import json, os, socket, sys
+assert '--receive-mode=manual' in sys.argv
 assert '--no-receive-stdout' in sys.argv
-address = next(arg.split('=', 1)[1] for arg in sys.argv if arg.startswith('--http='))
-host, port = address.rsplit(':', 1)
-class Handler(http.server.BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b'{"status":"ok"}')
-    def log_message(self, *args): pass
-http.server.HTTPServer((host, int(port)), Handler).serve_forever()
+path = next(arg.split('=', 1)[1] for arg in sys.argv if arg.startswith('--socket='))
+server = socket.socket(socket.AF_UNIX)
+server.bind(path)
+server.listen()
+while True:
+    connection, _ = server.accept()
+    with connection, connection.makefile('rwb') as stream:
+        for line in stream:
+            request = json.loads(line)
+            stream.write(json.dumps({'jsonrpc': '2.0', 'id': request['id'], 'result': {'version': 'fixture'}}).encode() + b'\n')
+            stream.flush()
 "#,
         )
         .await
         .unwrap();
-        use std::os::unix::fs::PermissionsExt;
         tokio::fs::set_permissions(&program, std::fs::Permissions::from_mode(0o700))
             .await
             .unwrap();
@@ -306,36 +325,41 @@ http.server.HTTPServer((host, int(port)), Handler).serve_forever()
         .await
         .unwrap();
         assert!(prepared.token.is_none());
-        let mut socket =
-            tokio::net::TcpStream::connect(prepared.config.endpoint.trim_start_matches("http://"))
-                .await
-                .unwrap();
-        use tokio::io::{AsyncReadExt, AsyncWriteExt};
-        socket
-            .write_all(b"GET /api/v1/check HTTP/1.0\r\nHost: localhost\r\n\r\n")
+        let socket = LocalSocket::for_config(&prepared.config).unwrap().unwrap();
+        let mut stream = BufReader::new(socket.connect().await.unwrap());
+        stream
+            .get_mut()
+            .write_all(b"{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"version\"}\n")
             .await
             .unwrap();
-        let mut bytes = Vec::new();
-        socket.take(4096).read_to_end(&mut bytes).await.unwrap();
-        assert!(
-            String::from_utf8(bytes)
-                .unwrap()
-                .contains("{\"status\":\"ok\"}")
-        );
+        let mut response = String::new();
+        stream.read_line(&mut response).await.unwrap();
+        assert!(response.contains("\"version\": \"fixture\""));
+        drop(stream);
         prepared.host.stop().await;
         assert!(prepared.host.child.lock().unwrap().is_none());
-        assert!(
-            tokio::net::TcpStream::connect(prepared.config.endpoint.trim_start_matches("http://"))
-                .await
-                .is_err()
-        );
-        assert_eq!(
-            std::fs::metadata(directory.path().join("services"))
-                .unwrap()
-                .permissions()
-                .mode()
-                & 0o777,
-            0o700
-        );
+        assert!(socket.connect().await.is_err());
+        for private in [
+            directory.path().join("services"),
+            directory
+                .path()
+                .join("services")
+                .join(prepared.config.account.to_string()),
+        ] {
+            assert_eq!(
+                std::fs::metadata(private).unwrap().permissions().mode() & 0o777,
+                0o700
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn services_readiness_accepts_only_the_socket_of_the_started_process() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join(SOCKET_NAME);
+        let _listener = tokio::net::UnixListener::bind(&path).unwrap();
+        assert!(served_by(&path, std::process::id()).await);
+        assert!(!served_by(&path, std::process::id() + 1).await);
+        assert!(!served_by(&directory.path().join("missing.sock"), std::process::id()).await);
     }
 }

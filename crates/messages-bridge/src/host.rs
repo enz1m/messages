@@ -234,7 +234,21 @@ async fn command(
     }
 }
 
+/// Serves the bridge API until Ctrl-C.
+///
+/// `MESSAGES_BRIDGE_SOCKET` selects a Unix socket path, which must not exist yet;
+/// otherwise the API listens on `MESSAGES_BRIDGE_BIND` or loopback `port`.
 pub async fn serve(backend: Arc<dyn Backend>, token: String, port: u16) -> anyhow::Result<()> {
+    let shutdown = async {
+        let _ = tokio::signal::ctrl_c().await;
+    };
+    if let Some(path) = std::env::var_os("MESSAGES_BRIDGE_SOCKET") {
+        let listener = tokio::net::UnixListener::bind(&path)?;
+        axum::serve(listener, router(backend, token))
+            .with_graceful_shutdown(shutdown)
+            .await?;
+        return Ok(());
+    }
     let address: SocketAddr = std::env::var("MESSAGES_BRIDGE_BIND")
         .unwrap_or_else(|_| format!("127.0.0.1:{port}"))
         .parse()?;
@@ -248,9 +262,7 @@ pub async fn serve(backend: Arc<dyn Backend>, token: String, port: u16) -> anyho
         listener.local_addr()?
     );
     axum::serve(listener, router(backend, token))
-        .with_graceful_shutdown(async {
-            let _ = tokio::signal::ctrl_c().await;
-        })
+        .with_graceful_shutdown(shutdown)
         .await?;
     Ok(())
 }

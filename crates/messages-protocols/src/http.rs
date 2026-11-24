@@ -15,6 +15,7 @@ pub struct Http {
     pub(crate) client: Client,
     base: Url,
     authorization: Option<String>,
+    _socket: Option<crate::local_socket::LocalSocket>,
 }
 
 impl Http {
@@ -32,18 +33,48 @@ impl Http {
                 "Use an HTTP(S) server URL without credentials, query or fragment.".into(),
             ));
         }
-        let client = Client::builder()
-            .connect_timeout(Duration::from_secs(8))
-            .timeout(Duration::from_secs(35))
-            .redirect(reqwest::redirect::Policy::none())
-            .user_agent("enz-Messages/0.1.0")
-            .build()
-            .map_err(|_| AdapterError::Network)?;
+        let client = Self::builder().build().map_err(|_| AdapterError::Network)?;
         Ok(Self {
             client,
             base,
             authorization,
+            _socket: None,
         })
+    }
+
+    /// HTTP to a managed helper's private socket.
+    pub fn local(
+        socket: crate::local_socket::LocalSocket,
+        authorization: Option<String>,
+    ) -> Result<Self, AdapterError> {
+        let client = Self::builder()
+            .unix_socket(socket.path())
+            .build()
+            .map_err(|_| AdapterError::Network)?;
+        Ok(Self {
+            client,
+            base: Url::parse("http://localhost/").map_err(|_| AdapterError::Network)?,
+            authorization,
+            _socket: Some(socket),
+        })
+    }
+
+    fn builder() -> reqwest::ClientBuilder {
+        Client::builder()
+            .connect_timeout(Duration::from_secs(8))
+            .timeout(Duration::from_secs(35))
+            .redirect(reqwest::redirect::Policy::none())
+            .user_agent("enz-Messages/0.1.0")
+    }
+
+    pub(crate) fn from_config(
+        config: &crate::ConnectionConfig,
+        authorization: Option<String>,
+    ) -> Result<Self, AdapterError> {
+        match crate::local_socket::LocalSocket::for_config(config) {
+            Some(socket) => Self::local(socket?, authorization),
+            None => Self::new(&config.endpoint, authorization),
+        }
     }
 
     pub fn url(&self, segments: &[&str]) -> Result<Url, AdapterError> {

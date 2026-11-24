@@ -32,10 +32,7 @@ pub struct Bridge {
 
 impl Bridge {
     pub fn new(config: ConnectionConfig, token: Option<String>) -> Result<Self, AdapterError> {
-        let http = Http::new(
-            &config.endpoint,
-            token.map(|value| format!("Bearer {value}")),
-        )?;
+        let http = Http::from_config(&config, token.map(|value| format!("Bearer {value}")))?;
         Ok(Self {
             config,
             http,
@@ -44,6 +41,9 @@ impl Bridge {
     }
 
     fn local_media(&self) -> bool {
+        if crate::local_socket::LocalSocket::for_config(&self.config).is_some() {
+            return true;
+        }
         url::Url::parse(&self.config.endpoint)
             .ok()
             .and_then(|u| {

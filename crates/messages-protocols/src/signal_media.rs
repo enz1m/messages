@@ -2,11 +2,10 @@ use std::time::Duration;
 
 use base64::{Engine, engine::general_purpose::STANDARD};
 use messages_core::{Attachment, MAX_ATTACHMENT_BYTES, MAX_ATTACHMENTS, RoomKey, SendRequest};
-use reqwest::Method;
 use serde_json::{Value, json};
 use tokio::io::AsyncReadExt;
 
-use crate::{Adapter, AdapterError, ManagedConnection, http::Http, signal::Signal};
+use crate::{Adapter, AdapterError, ManagedConnection, signal::Signal};
 
 pub(crate) static MEDIA_JOBS: tokio::sync::Semaphore = tokio::sync::Semaphore::const_new(2);
 
@@ -58,21 +57,14 @@ impl Signal {
         limit: usize,
     ) -> Result<Value, AdapterError> {
         params["account"] = json!(self.active_user()?);
-        let response = self
-            .http
-            .request(Method::POST, self.http.url(&["api", "v1", "rpc"])?)
-            .timeout(Duration::from_secs(
-                if matches!(method, "send" | "getAttachment") {
-                    120
-                } else {
-                    35
-                },
-            ))
-            .json(&json!({"jsonrpc":"2.0","id":id,"method":method,"params":params}))
-            .send()
+        let timeout = Duration::from_secs(if matches!(method, "send" | "getAttachment") {
+            120
+        } else {
+            35
+        });
+        self.transport
+            .call(method, params, id, limit, timeout)
             .await
-            .map_err(|_| AdapterError::Network)?;
-        Http::decode_limited(response, limit).await
     }
 
     pub(crate) async fn add_files(

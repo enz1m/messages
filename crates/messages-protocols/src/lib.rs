@@ -5,6 +5,7 @@ pub mod adapter;
 pub mod bridge;
 pub mod calls;
 pub mod http;
+pub mod local_socket;
 pub mod login;
 pub mod matrix;
 mod matrix_media;
@@ -16,6 +17,7 @@ mod signal_contacts;
 mod signal_events;
 mod signal_login;
 mod signal_media;
+mod signal_socket;
 mod sse;
 
 pub use adapter::{

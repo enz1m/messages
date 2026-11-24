@@ -6,9 +6,11 @@ their cryptographic state remains outside the desktop snapshot.
 
 ## Signal
 
-The adapter uses JSON-RPC and a resumable SSE connection. It requests buffered
-events on first connection and reconnect, retains partial UTF-8/events between
-sync windows, and addresses actions with remote message identities. Direct and
+Managed accounts use JSON-RPC on the signal-cli daemon's Unix socket in the
+account's private directory, receiving through an explicit subscription. Other
+endpoints use HTTP JSON-RPC and a resumable SSE connection that requests buffered
+events on first connection and reconnect and retains partial UTF-8/events between
+sync windows. Actions address remote message identities. Direct and
 existing group conversations support text, bounded file transfer, quotes,
 edits/deletes, reactions, delivery/read receipts and typing. Linked-device reads
 reduce incoming unread counts; they are not receipts for sent messages.

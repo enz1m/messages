@@ -3,15 +3,13 @@ use std::{
     time::{Duration, Instant},
 };
 
-use reqwest::Method;
 use serde_json::{Value, json};
 use tokio::task::JoinHandle;
 
 use crate::{
     AdapterError,
-    http::Http,
     login::{LoginState, Secret},
-    signal::Signal,
+    signal::{Signal, Transport},
 };
 
 #[derive(Default)]
@@ -95,17 +93,23 @@ impl Signal {
             self.auth.lock().map_err(|_| AdapterError::Network)?.user = Some(user);
             return Ok(LoginState::Ready);
         }
-        let result = rpc(&self.http, "startLink", json!({}), Duration::from_secs(15)).await?;
+        let result = rpc(
+            &self.transport,
+            "startLink",
+            json!({}),
+            Duration::from_secs(15),
+        )
+        .await?;
         let uri = result["deviceLinkUri"]
             .as_str()
             .filter(|uri| uri.starts_with("sgnl://linkdevice?"))
             .ok_or_else(|| AdapterError::InvalidData("Signal pairing link missing".into()))?
             .to_owned();
-        let http = self.http.clone();
+        let transport = self.transport.clone();
         let payload: Secret = uri.clone().into();
         let task = tokio::spawn(async move {
             let account = rpc(
-                &http,
+                &transport,
                 "finishLink",
                 json!({"deviceLinkUri":uri,"deviceName":"Messages"}),
                 Duration::from_secs(120),
@@ -126,7 +130,7 @@ impl Signal {
 
     async fn registered_user(&self) -> Result<Option<String>, AdapterError> {
         let accounts = rpc(
-            &self.http,
+            &self.transport,
             "listAccounts",
             json!({}),
             Duration::from_secs(15),
@@ -158,20 +162,15 @@ fn identifier(value: &Value) -> Option<String> {
 }
 
 async fn rpc(
-    http: &Http,
+    transport: &Transport,
     method: &str,
     params: Value,
     timeout: Duration,
 ) -> Result<Value, AdapterError> {
     let id = uuid::Uuid::new_v4().to_string();
-    let response = http
-        .request(Method::POST, http.url(&["api", "v1", "rpc"])?)
-        .timeout(timeout)
-        .json(&json!({"jsonrpc":"2.0","id":id,"method":method,"params":params}))
-        .send()
-        .await
-        .map_err(|_| AdapterError::Network)?;
-    let value = Http::decode(response).await?;
+    let value = transport
+        .call(method, params, &id, 8 * 1024 * 1024, timeout)
+        .await?;
     if value["id"] != id || !value["error"].is_null() {
         return Err(AdapterError::InvalidData(format!(
             "Signal {method} could not be completed."

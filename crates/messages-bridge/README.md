@@ -1,6 +1,6 @@
 # Native protocol hosts
 
-Matrix and WhatsApp SDK hosts expose an authenticated loopback API to the desktop.
+Matrix and WhatsApp SDK hosts expose an authenticated local API to the desktop.
 Each account owns its SDK database, cryptographic keys, session and local API token.
 Hosts use a separate Cargo workspace to preserve their SDK dependency graph.
 
@@ -14,7 +14,8 @@ cargo build --locked \
 
 Use feature `whatsapp` and binary `messages-whatsapp` for the other host. The
 combined feature set is for metadata collection, not a linked test/helper process.
-The desktop normally starts and stops these hosts; manual endpoints default to
+The desktop normally starts and stops these hosts on a Unix socket in the account's
+private directory (`MESSAGES_BRIDGE_SOCKET`). Manual endpoints default to loopback
 ports 8821 for WhatsApp and 8823 for Matrix. `MESSAGES_BRIDGE_STATE` selects private
 host storage and `MESSAGES_BRIDGE_TOKEN` supplies a local bearer token. Tokens,
 QR/session secrets and provider credentials must not be printed or committed.
