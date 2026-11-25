@@ -35,19 +35,19 @@ serde_json.workspace = true
 tokio.workspace = true
 chrono.workspace = true
 uuid.workspace = true
-iced = { git = "https://github.com/enz1m/enzim-iced.git", rev = "523c1755479c55ba4030dafb2be9c05bf8a1def4", features = ["wgpu", "tiny-skia", "crisp", "web-colors", "thread-pool", "linux-theme-detection", "wayland", "wayland-dlopen", "wayland-decorations", "canvas", "svg", "a11y", "tokio"], default-features = false }
-enzui-iced-core = { package = "enzui-core", features = ["accesskit", "notification-freedesktop"], git = "https://github.com/enz1m/enzui.git", rev = "0ed41783775a9bf1b431a7f5b57f782e30210552" }
-enzui-iced-theme = { package = "enzui-theme", git = "https://github.com/enz1m/enzui.git", rev = "0ed41783775a9bf1b431a7f5b57f782e30210552" }
-enzui-iced-widgets = { package = "enzui-widgets", features = ["portal-dbus", "application-dbus", "emoji-picker"], git = "https://github.com/enz1m/enzui.git", rev = "0ed41783775a9bf1b431a7f5b57f782e30210552" }
-enzui-iced-resources = { package = "enzui-resources", default-features = false, features = ["heif", "first-frame-previews"], git = "https://github.com/enz1m/enzui.git", rev = "0ed41783775a9bf1b431a7f5b57f782e30210552" }
-enzui-services = { features = ["secret-service"], git = "https://github.com/enz1m/enzui.git", rev = "0ed41783775a9bf1b431a7f5b57f782e30210552" }
-enzui-wayland = { git = "https://github.com/enz1m/enzui.git", rev = "0ed41783775a9bf1b431a7f5b57f782e30210552" }
-enzui-parent-lease = { git = "https://github.com/enz1m/enzui.git", rev = "0ed41783775a9bf1b431a7f5b57f782e30210552" }
+iced = { git = "https://github.com/enz1m/enzim-iced.git", rev = "838066d2e7373e87cfb42e62cca5a1dc9625b5f9", features = ["wgpu", "tiny-skia", "crisp", "web-colors", "thread-pool", "linux-theme-detection", "wayland", "wayland-dlopen", "wayland-decorations", "canvas", "svg", "a11y", "tokio"], default-features = false }
+enzui-iced-core = { package = "enzui-core", features = ["accesskit", "notification-freedesktop"], git = "https://github.com/enz1m/enzui.git", rev = "46f267ecf6642423a7d716488200a5ceb8726655" }
+enzui-iced-theme = { package = "enzui-theme", git = "https://github.com/enz1m/enzui.git", rev = "46f267ecf6642423a7d716488200a5ceb8726655" }
+enzui-iced-widgets = { package = "enzui-widgets", features = ["portal-dbus", "application-dbus", "emoji-picker"], git = "https://github.com/enz1m/enzui.git", rev = "46f267ecf6642423a7d716488200a5ceb8726655" }
+enzui-iced-resources = { package = "enzui-resources", default-features = false, features = ["heif", "first-frame-previews"], git = "https://github.com/enz1m/enzui.git", rev = "46f267ecf6642423a7d716488200a5ceb8726655" }
+enzui-services = { features = ["secret-service"], git = "https://github.com/enz1m/enzui.git", rev = "46f267ecf6642423a7d716488200a5ceb8726655" }
+enzui-wayland = { git = "https://github.com/enz1m/enzui.git", rev = "46f267ecf6642423a7d716488200a5ceb8726655" }
+enzui-parent-lease = { git = "https://github.com/enz1m/enzui.git", rev = "46f267ecf6642423a7d716488200a5ceb8726655" }
 
 [dev-dependencies]
 zbus = { version = "5.18", default-features = false, features = ["tokio"] }
 tempfile = "3"
-iced_runtime = { git = "https://github.com/enz1m/enzim-iced.git", rev = "523c1755479c55ba4030dafb2be9c05bf8a1def4" }
+iced_runtime = { git = "https://github.com/enz1m/enzim-iced.git", rev = "838066d2e7373e87cfb42e62cca5a1dc9625b5f9" }
 messages-test-server = { path = "crates/messages-test-server" }
 
 [profile.dev]
@@ -82,7 +82,7 @@ zvariant = { git = "https://github.com/enz1m/enzim-zbus.git", rev = "e182645b56d
 zvariant_derive = { git = "https://github.com/enz1m/enzim-zbus.git", rev = "e182645b56d15e637bb6c8144f99ebfa7f900716" }
 zvariant_utils = { git = "https://github.com/enz1m/enzim-zbus.git", rev = "e182645b56d15e637bb6c8144f99ebfa7f900716" }
 zbus = { git = "https://github.com/enz1m/enzim-zbus.git", rev = "e182645b56d15e637bb6c8144f99ebfa7f900716" }
-winit = { git = "https://github.com/enz1m/enzim-winit.git", rev = "40eeb41f8637ef1620afa377ba006874224b6d65" }
+winit = { git = "https://github.com/enz1m/enzim-winit.git", rev = "405e1caca89357f6da20eafe7ed8abc686567092" }
 
 [features]
 x11 = ["iced/x11", "enzui-iced-widgets/x11"]
