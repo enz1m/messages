@@ -1,6 +1,6 @@
 [package]
 name = "enz-messages"
-version = "0.1.1"
+version = "0.1.3"
 edition = "2024"
 rust-version = "1.95"
 license = "MIT"
@@ -35,19 +35,19 @@ serde_json.workspace = true
 tokio.workspace = true
 chrono.workspace = true
 uuid.workspace = true
-iced = { git = "https://github.com/enz1m/enzim-iced.git", rev = "838066d2e7373e87cfb42e62cca5a1dc9625b5f9", features = ["wgpu", "tiny-skia", "crisp", "web-colors", "thread-pool", "linux-theme-detection", "wayland", "wayland-dlopen", "wayland-decorations", "canvas", "svg", "a11y", "tokio"], default-features = false }
-enzui-iced-core = { package = "enzui-core", features = ["accesskit", "notification-freedesktop"], git = "https://github.com/enz1m/enzui.git", rev = "46f267ecf6642423a7d716488200a5ceb8726655" }
-enzui-iced-theme = { package = "enzui-theme", git = "https://github.com/enz1m/enzui.git", rev = "46f267ecf6642423a7d716488200a5ceb8726655" }
-enzui-iced-widgets = { package = "enzui-widgets", features = ["portal-dbus", "application-dbus", "emoji-picker"], git = "https://github.com/enz1m/enzui.git", rev = "46f267ecf6642423a7d716488200a5ceb8726655" }
-enzui-iced-resources = { package = "enzui-resources", default-features = false, features = ["heif", "first-frame-previews"], git = "https://github.com/enz1m/enzui.git", rev = "46f267ecf6642423a7d716488200a5ceb8726655" }
-enzui-services = { features = ["secret-service"], git = "https://github.com/enz1m/enzui.git", rev = "46f267ecf6642423a7d716488200a5ceb8726655" }
-enzui-wayland = { git = "https://github.com/enz1m/enzui.git", rev = "46f267ecf6642423a7d716488200a5ceb8726655" }
-enzui-parent-lease = { git = "https://github.com/enz1m/enzui.git", rev = "46f267ecf6642423a7d716488200a5ceb8726655" }
+iced = { git = "https://github.com/enz1m/enzim-iced.git", rev = "58b66f27b82d30cb0fd09db524307b6a0e099279", features = ["wgpu", "tiny-skia", "crisp", "web-colors", "thread-pool", "linux-theme-detection", "wayland", "wayland-dlopen", "wayland-decorations", "canvas", "svg", "a11y", "tokio"], default-features = false }
+enzui-iced-core = { package = "enzui-core", features = ["accesskit", "notification-freedesktop"], git = "https://github.com/enz1m/enzui.git", rev = "46648f263fbfd31bb2a6327c4dda4845f8d5af97" }
+enzui-iced-theme = { package = "enzui-theme", git = "https://github.com/enz1m/enzui.git", rev = "46648f263fbfd31bb2a6327c4dda4845f8d5af97" }
+enzui-iced-widgets = { package = "enzui-widgets", features = ["portal-dbus", "application-dbus", "emoji-picker"], git = "https://github.com/enz1m/enzui.git", rev = "46648f263fbfd31bb2a6327c4dda4845f8d5af97" }
+enzui-iced-resources = { package = "enzui-resources", default-features = false, features = ["heif", "first-frame-previews"], git = "https://github.com/enz1m/enzui.git", rev = "46648f263fbfd31bb2a6327c4dda4845f8d5af97" }
+enzui-services = { features = ["secret-service"], git = "https://github.com/enz1m/enzui.git", rev = "46648f263fbfd31bb2a6327c4dda4845f8d5af97" }
+enzui-wayland = { git = "https://github.com/enz1m/enzui.git", rev = "46648f263fbfd31bb2a6327c4dda4845f8d5af97" }
+enzui-parent-lease = { git = "https://github.com/enz1m/enzui.git", rev = "46648f263fbfd31bb2a6327c4dda4845f8d5af97" }
 
 [dev-dependencies]
 zbus = { version = "5.18", default-features = false, features = ["tokio"] }
 tempfile = "3"
-iced_runtime = { git = "https://github.com/enz1m/enzim-iced.git", rev = "838066d2e7373e87cfb42e62cca5a1dc9625b5f9" }
+iced_runtime = { git = "https://github.com/enz1m/enzim-iced.git", rev = "58b66f27b82d30cb0fd09db524307b6a0e099279" }
 messages-test-server = { path = "crates/messages-test-server" }
 
 [profile.dev]
